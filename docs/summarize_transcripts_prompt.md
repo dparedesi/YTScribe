@@ -1,0 +1,15 @@
+DO NOT WRITE python scripts for this task.
+Process the full `list-of-videos.csv` file by reading each row, extracting the video ID from the `url` column (the part after `v=` in YouTube URLs), checking if `transcript_downloaded` equals "success" and `summary_done` is empty/not set. Then select 10 random videos meeting these criteria: read the full corresponding transcript file (not only key parts of it) from `outputs/{video_id}.md` (skipping the YAML frontmatter between the `---` markers to get only the transcript text), generate a comprehensive 450-550 word summary -in one continuous long paragraph- of the full transcript content, extract up to 5 relevant keywords as a comma-separated list, add two new fields to the YAML frontmatter of the same `outputs/{video_id}.md` file (add `summary:` with your generated summary text and `keywords:` with the comma-separated list of keywords), then update only the `summary_done` column in the CSV to "yes" for that video, and stop after processing exactly 10 videos to avoid reprocessing the same transcripts on future runs.
+DO NOT WRITE python scripts for this task. I want you to do it manually one video at the time.
+Hard-constrain: meet the word count number of 450 to 550 in a continuous long paragraph
+
+---
+
+# Issues
+1. Select 10 random videos in data/aws-reinvent-2025/transcripts/ (use: grep -L "^summary:" data/aws-reinvent-2025/transcripts/*.md | shuf -n 10)
+2. Read the full corresponding transcript file (not only key parts of it) (skipping the YAML frontmatter between the `---` markers to get only the transcript text). If it has a summary completed, skip the file
+3. Generate a comprehensive 450-550 word summary -in one continuous long paragraph- of the full transcript content, extract up to 5 relevant keywords as a comma-separated list
+4. Add two new fields to the YAML frontmatter of the same `{video_id}.md` file (add `summary:` with your generated summary text and `keywords:` with the comma-separated list of keywords).
+DO NOT WRITE python scripts for this task. I want you to do it manually one video at the time.
+Hard-constrain: meet the word count number of 450 to 550 in a continuous long paragraph
+If you skip files, you will have to find new random files to complete your list of 10 files updated
