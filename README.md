@@ -21,8 +21,8 @@ Download YouTube transcripts from conference channels and organize them for anal
 ### From source (recommended)
 
 ```bash
-git clone https://github.com/danielparedes/conference-transcript-downloader.git
-cd conference-transcript-downloader
+git clone https://github.com/dparedesi/YTScribe.git
+cd YTScribe
 pip install -e .
 ```
 
@@ -42,18 +42,6 @@ transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
 
 # Download transcripts
 transcript-download \
-  --csv data/aws-reinvent-2025/videos.csv \
-  --output-dir data/aws-reinvent-2025/transcripts
-```
-
-Or use the legacy scripts directly:
-
-```bash
-python extract_channel_videos.py https://www.youtube.com/@AWSEventsChannel/videos \
-  --count 100 \
-  --append-csv data/aws-reinvent-2025/videos.csv
-
-python download_youtube_transcript.py \
   --csv data/aws-reinvent-2025/videos.csv \
   --output-dir data/aws-reinvent-2025/transcripts
 ```
@@ -168,7 +156,7 @@ https://youtube.com/watch?v=...,Talk Title,45.5,1234,Description...,success,
 ## Project Structure
 
 ```
-conference-transcript-downloader/
+YTScribe/
 ├── src/
 │   └── transcript_downloader/
 │       ├── __init__.py          # Package exports
@@ -222,8 +210,8 @@ YouTube may rate limit or block your IP if you make too many requests:
 
 ```bash
 # Clone repository
-git clone https://github.com/danielparedes/conference-transcript-downloader.git
-cd conference-transcript-downloader
+git clone https://github.com/dparedesi/YTScribe.git
+cd YTScribe
 
 # Install with development dependencies
 pip install -e ".[dev]"
@@ -313,7 +301,7 @@ for video in videos:
 - Python 3.9+
 - youtube-transcript-api
 - yt-dlp
-- pytube (optional, for enhanced metadata)
+- pytube
 
 ## License
 

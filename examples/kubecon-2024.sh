@@ -18,7 +18,7 @@ mkdir -p "data/${CONFERENCE}"
 # Step 1: Extract video list
 echo ""
 echo "Step 1/2: Extracting ${VIDEO_COUNT} latest videos from channel..."
-python extract_channel_videos.py "${CHANNEL_URL}" \
+transcript-extract "${CHANNEL_URL}" \
   --count ${VIDEO_COUNT} \
   --append-csv "data/${CONFERENCE}/videos.csv"
 
@@ -26,7 +26,7 @@ python extract_channel_videos.py "${CHANNEL_URL}" \
 echo ""
 echo "Step 2/2: Downloading transcripts (60s delay between requests)..."
 echo "This may take a while. Press Ctrl+C to stop (progress is saved)."
-python download_youtube_transcript.py \
+transcript-download \
   --csv "data/${CONFERENCE}/videos.csv" \
   --output-dir "data/${CONFERENCE}/transcripts" \
   --delay 60

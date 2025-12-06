@@ -60,9 +60,9 @@ transcript-download = "transcript_downloader.cli:download_main"
 transcript-extract = "transcript_downloader.cli:extract_main"
 
 [project.urls]
-Homepage = "https://github.com/danielparedes/conference-transcript-downloader"
-Repository = "https://github.com/danielparedes/conference-transcript-downloader"
-Issues = "https://github.com/danielparedes/conference-transcript-downloader/issues"
+Homepage = "https://github.com/dparedesi/YTScribe"
+Repository = "https://github.com/dparedesi/YTScribe"
+Issues = "https://github.com/dparedesi/YTScribe/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
