@@ -55,3 +55,4 @@ Desktop.ini
 # Project specific
 outputs/
 *.log
+*transcripts/
