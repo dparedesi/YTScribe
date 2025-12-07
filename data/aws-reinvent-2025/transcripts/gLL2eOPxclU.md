@@ -1,0 +1,8 @@
+---
+video_id: gLL2eOPxclU
+video_url: https://www.youtube.com/watch?v=gLL2eOPxclU
+is_generated: False
+is_translatable: True
+summary: "This session, \"Building on AWS resilience: Innovations for critical success (ARC207),\" explores the engineering principles and behind-the-scenes innovations that drive AWS cloud resilience. Presented by Mike Aiken and Gavin McCullough, the talk emphasizes AWS's \"anti-fragile\" approach—learning from every incident to become stronger. They detail four key \"availability axioms\" guiding AWS engineering: 1) **Region Isolation**: Demonstrated by the transparent migration of the global STS endpoint to regional endpoints to eliminate cross-region dependencies and improve latency. 2) **AZ Resilience**: Focusing on detecting and mitigating \"gray failures\" (ambiguous, partial failures) using tools like \"Fleet Health Service\" (based on CloudWatch Contributor Insights) and \"Zonal Event Detector,\" which powers the customer-facing \"Zonal Auto-Shift\" feature to automatically move traffic away from impaired Availability Zones. 3) **Rigorous Testing**: Highlighting the use of \"Game Days\" and a dedicated, non-customer \"Game Day Region\" to constantly test failure modes and expand the \"competence envelope\" of services. 4) **Overload Protection**: Discussing research into \"metastable failures\" (where a system gets stuck in a failure loop due to retries/backlogs) and tools like \"Metaphor\" to model and prevent them. The session underscores AWS's obsession with resilience to support mission-critical customer workloads."
+keywords: AWS Resilience, Availability Axioms, Region Isolation, Zonal Shift, Gray Failures, Metastable Failures, Game Day, Operational Excellence, Chaos Engineering, STS
+---

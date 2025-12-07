@@ -1,0 +1,8 @@
+---
+video_id: OvOTPgfoHQg
+video_url: https://www.youtube.com/watch?v=OvOTPgfoHQg
+is_generated: False
+is_translatable: True
+summary: "This lightning talk from the AWS Generative AI Innovation Center, led by Jacqueline Crane and Taymor Rashid, reveals key patterns for successfully moving GenAI and Agentic AI from experimentation to enterprise production. The session introduces the \"Partner Innovation Alliance\" (PIA), a curated group of GenAI competency partners trained on AWS methodology and equipped with solution accelerators. Four pillars for success are outlined: 1) **Data as a Competitive Differentiator**: Leverage proprietary data with RAG or fine-tuning (new Bedrock/SageMaker capabilities); an LCA healthcare example is shared. 2) **Production-Ready Mindset**: Focus on evolving fundamentals (infrastructure, governance), agility (\"live in 45\" mantra), model choice (task-specific, multi-model in Bedrock), and transformative applications. 3) **Scaling with Agentic AI**: Use Q.iro (spec-driven AI-native IDE), Strands SDK (open-source agent building), and the new Bedrock Agent Core (8 primitives: runtime, memory, gateway, identity, browser tool, observability, evaluations). A SonicWall/Cybge example achieved 40% code maintainability improvement; Krungsri/OneByZero achieved 50% cloud migration acceleration with an ETL-specialized agent. 4) **Redefining Value**: Partner with startups like PayI for GenAI FinOps."
+keywords: AWS Generative AI Innovation Center, Partner Innovation Alliance, Agentic AI, Production Ready, Data Differentiation, RAG, Fine-Tuning, Agent Core, Strands SDK, ROI, FinOps
+---

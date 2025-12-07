@@ -1,0 +1,14 @@
+---
+video_id: 6TXXMTYQtHk
+video_url: https://www.youtube.com/watch?v=6TXXMTYQtHk
+title: Notion’s rebuild for agentic AI: How GPT‑5 helped unlock autonomous workflows
+author: OpenAI
+published_date: 2025-11-13
+length_minutes: 2.12
+views: 32313
+description: "With OpenAI, Notion became a natively AI-powered workspace. Their integration of GPT-4o, GPT-4o mini, embeddings, and now GPT-5 powers millions of users' workflows, from writing and summarizing to Q&A and task automation. Learn how they rebuilt their system for agentic AI: https://openai.com/index/notion/"
+is_generated: True
+is_translatable: True
+---
+
+At Notion, our mission is to help people build beautiful tools for their life's work. What AI has done is almost given us a different gear, new electricity to make it even simpler. It's a really fun story. After co we made our first companywide trip, [music] my co-founders Ivan and Simon had just gotten early access to GPD4. The two of them essentially locked themselves in a room to prototype a version of Notion that taps into this GP4 API. By the end of the week, they had a prototype that was really compelling. Now they can speak in their own language. We've gone from people needing to learn software to just speaking in English and seeing a software emerge on the other side of that. It felt like it's not just a notion product, but it was our combined product because it was really using [music] OpenAI's APIs to launch that >> from internal usage to GA. It's 50% faster and that [music] speed actually allows our users to use it reliably. Ultimately, we do our work in a lot [music] of places and utilizing notion AI, we've worked really hard with OpenAI to build lots of connectors and [music] integrations. So today, your notion AI isn't just connected to your notion workspace, it's connected to GitHub, [music] it's connected to Confluence, it's connected to Slack. And so when you ask a question, for instance, as an engineering manager, I have everything from who wrote the code, who [music] put the design file in Figma to what is the PD? and utilizing our embeddings from OpenAI, we're able to make that retrieval really fast and very high quality. Unsurprisingly, [music] when customers are using Notion AI, they're almost twothirds as active on notion than customers that don't. And from that, [music] 3/4 of them say that they they would never go back. That AI is integral into how they use Notion. [music] >> I think maybe the most fun part about this whole journey is that we are each other's [music] customers. And so when OpenAI tells us that our Q&A product is really good, that gives us confidence that we've built something that is truly world class. Of [music] course, tapping into the power that OpenAI has provided.

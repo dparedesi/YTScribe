@@ -1,0 +1,10 @@
+---
+video_id: 82XldgCK414
+video_url: https://www.youtube.com/watch?v=82XldgCK414
+is_generated: False
+is_translatable: True
+summary: "This session, presented by AWS Senior Specialist Solutions Architect Samanir Fan, provides an in-depth look at Amazon Redshift Data Sharing, a feature designed to eliminate the complexities of traditional data movement and ETL pipelines. Fan begins by outlining the limitations of legacy data sharing methods—such as manual copying and stale data—and contrasts them with Redshift's ability to share live, transactional data securely across different Redshift warehouses, AWS accounts, and regions without duplicating storage. The core of the presentation details the underlying architecture, which leverages the separation of compute and storage to allow multiple consumer warehouses to query data from a producer warehouse simultaneously. Fan explains three distinct methods for managing these shares: direct Redshift Managed Data Shares for simple topologies, Lake Formation Managed Data Shares for centralized governance in complex environments, and AWS Data Exchange for organizations looking to monetize their data products.
+
+The session further explores four primary use cases: workload isolation, enabling organizations like Peloton to separate ETL, ad-hoc, and BI workloads to avoid resource contention; cross-group collaboration, illustrated by Fennemi's adoption of a data mesh architecture; \"Data as a Service\" for creating internal data marketplaces; and improving development agility by sharing production data securely with test and dev environments. Fan also delves into best practices, clarifying the cost model where producers pay for storage while consumers pay for compute, and highlighting security features like end-to-end encryption. The talk concludes with advice on leveraging AWS Lake Formation to streamline permission management in many-to-many sharing scenarios, ensuring robust governance and auditing capabilities at scale."
+keywords: Amazon Redshift, Data Sharing, AWS Lake Formation, Workload Isolation, Data Mesh
+---

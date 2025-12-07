@@ -1,0 +1,8 @@
+---
+video_id: 42TotVxOC44
+video_url: https://www.youtube.com/watch?v=42TotVxOC44
+is_generated: False
+is_translatable: True
+summary: "This session introduces **Multi-product Solutions**, a new AWS Marketplace feature announced at re:Invent 2025 that allows customers to purchase multiple products from different categories (software, professional services) in a single transaction. Key points: 1) **Shift to Outcome-Based Buying**: Customers now seek solutions (e.g., observability, GenAI transformation) rather than individual products. 2) **Partner Go-to-Market Transformation**: Partners can now sell complete solutions, target industry-specific use cases, and easily tailor solutions (add/remove/swap components) during the sales cycle. 3) **Streamlined Procurement**: Each product within a solution maintains its own terms and pricing, wrapped in an 'Offer Set' for simplified purchasing. 4) **Demo Walkthrough**: Accenture's 'Data Readiness Engine for GenAI' example combines Elastic Cloud, Elastic MCP Server, Accenture Aspire Connectors, and Accenture implementation services. Partners create solutions in Partner Central, buyers discover via agentic mode or filtering, and purchase via private offer sets with flexible pricing (SaaS, milestone billing, pay-as-you-go). 5) **Launch Momentum**: 70 solutions from 65 launch partners including ISVs (Mistral AI, Trend Micro, Okta) and SIs (SEC, Westcon with CrowdStrike/Zscaler, contact center solutions with Amazon Connect)."
+keywords: AWS Marketplace, Multi-product Solutions, Solution Selling, Partner Central, Private Offer Set, Outcome-Based Procurement, Accenture, Elastic, GenAI Transformation, ISV
+---
