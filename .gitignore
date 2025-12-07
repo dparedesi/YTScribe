@@ -55,3 +55,6 @@ Desktop.ini
 # Project specific
 outputs/
 *.log
+
+# IDE cache
+.git/cursor/
