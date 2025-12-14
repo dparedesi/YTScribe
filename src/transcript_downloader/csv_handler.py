@@ -22,9 +22,9 @@ SUMMARY_COLUMN = "summary_done"
 # Metadata columns in desired order
 METADATA_COLUMNS = [
     "title",
-    "duration_seconds",
     "duration_minutes",
     "view_count",
+    "published_date",
     "description",
 ]
 
@@ -217,12 +217,12 @@ def append_videos_to_csv(
             # Add metadata
             if video.title:
                 row["title"] = video.title.replace("\n", " ").replace("\r", " ")
-            if video.duration_seconds is not None:
-                row["duration_seconds"] = video.duration_seconds
             if video.duration_minutes is not None:
                 row["duration_minutes"] = video.duration_minutes
             if video.view_count is not None:
                 row["view_count"] = video.view_count
+            if video.published_date:
+                row["published_date"] = video.published_date
             if video.description:
                 row["description"] = video.description.replace("\n", " ").replace("\r", " ")
 

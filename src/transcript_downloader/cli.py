@@ -212,6 +212,18 @@ def _run_batch_download(args: argparse.Namespace) -> None:
             progress.processed += 1
             if result.success:
                 row["transcript_downloaded"] = "success"
+                # Update metadata from download result
+                if result.metadata:
+                    if result.metadata.title:
+                        row["title"] = result.metadata.title.replace("\n", " ").replace("\r", " ")
+                    if result.metadata.duration_minutes is not None:
+                        row["duration_minutes"] = str(result.metadata.duration_minutes)
+                    if result.metadata.view_count is not None:
+                        row["view_count"] = str(result.metadata.view_count)
+                    if result.metadata.published_date:
+                        row["published_date"] = result.metadata.published_date
+                    if result.metadata.description:
+                        row["description"] = result.metadata.description.replace("\n", " ").replace("\r", " ")
                 progress.success += 1
             else:
                 row["transcript_downloaded"] = f"error: {result.error_message or 'unknown'}"
