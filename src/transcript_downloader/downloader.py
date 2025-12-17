@@ -118,7 +118,12 @@ class TranscriptDownloader:
             if output_file:
                 output_path = Path(output_file)
             else:
-                output_path = self.output_dir / f"{video_id}.md"
+                # Use date-prefixed filename: YYYY-MM-DD-{video_id}.md
+                if metadata.published_date:
+                    filename = f"{metadata.published_date}-{video_id}.md"
+                else:
+                    filename = f"{video_id}.md"
+                output_path = self.output_dir / filename
 
             # Save to file
             self._save_transcript(full_text, metadata, transcript_meta, output_path)

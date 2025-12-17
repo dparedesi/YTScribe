@@ -169,6 +169,7 @@ YTScribe/
 │       ├── exceptions.py        # Custom exceptions
 │       ├── logging_config.py    # Logging setup
 │       └── utils.py             # Utility functions
+├── scripts/                     # Utility scripts
 ├── tests/                       # Unit tests
 ├── data/                        # Downloaded data
 ├── examples/                    # Example scripts
@@ -185,8 +186,8 @@ data/
 ├── aws-reinvent-2025/
 │   ├── videos.csv
 │   └── transcripts/
-│       ├── video1.md
-│       └── video2.md
+│       ├── 2025-12-03-abc123xyz.md
+│       └── 2025-12-03-def456uvw.md
 ├── pycon-2024/
 │   ├── videos.csv
 │   └── transcripts/
