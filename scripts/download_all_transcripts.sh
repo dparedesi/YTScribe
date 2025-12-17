@@ -53,8 +53,17 @@ for CSV_FILE in $FOLDERS; do
     transcript-download \
         --csv "$CSV_FILE" \
         --output-dir "$TRANSCRIPTS_DIR" \
-        --delay "$DELAY" \
-        || echo "⚠️  Warning: Some errors in $FOLDER_NAME, continuing..."
+        --delay "$DELAY"
+    
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 2 ]; then
+        echo ""
+        echo "🛑 IP BLOCKED: Stopping entire batch to allow VPN switch"
+        echo "   Run again after switching VPN or waiting"
+        exit 2
+    elif [ $EXIT_CODE -ne 0 ]; then
+        echo "⚠️  Warning: Some errors in $FOLDER_NAME, continuing..."
+    fi
     
     echo ""
     echo "✅ Completed: $FOLDER_NAME"

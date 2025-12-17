@@ -101,16 +101,21 @@ def get_download_status(row: dict) -> Optional[str]:
 
 def is_already_downloaded(row: dict) -> bool:
     """
-    Check if a video has already been downloaded.
+    Check if a video has already been downloaded or has a permanent error.
 
     Args:
         row: CSV row dictionary
 
     Returns:
-        True if already successfully downloaded
+        True if already successfully downloaded or has a permanent error
     """
     status = get_download_status(row)
-    return status in ["success", "success (already exists)"]
+    if status in ["success", "success (already exists)"]:
+        return True
+    # Skip videos with disabled transcripts - this is a permanent error
+    if status and "Transcripts disabled" in status:
+        return True
+    return False
 
 
 def update_csv_status(

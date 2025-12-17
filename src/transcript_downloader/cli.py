@@ -242,7 +242,7 @@ def _run_batch_download(args: argparse.Namespace) -> None:
                 logger.warning(f"Could not save CSV: {e}")
 
             _print_summary(progress, interrupted=True)
-            sys.exit(1)
+            sys.exit(2)  # Exit code 2 = IP blocked
 
     # Save final CSV
     try:
