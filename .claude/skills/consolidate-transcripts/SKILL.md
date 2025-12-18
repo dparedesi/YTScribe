@@ -1,13 +1,13 @@
 ---
 name: consolidate-transcripts
-description: Consolidate transcripts from a channel into a single file, sorted by date (newest first), up to 900K words. Use when preparing transcripts for LLM context or bulk analysis.
+description: Consolidate transcripts from a channel into a single file, sorted by date (newest first), up to 550K words. Use when preparing transcripts for LLM context or bulk analysis.
 ---
 
 # Consolidate Transcripts
 
 ## Overview
 
-Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the word limit (default: 900,000 words). Output is saved to the `consolidated/` folder.
+Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the word limit (default: 550,000 words). Output is saved to the `consolidated/` folder.
 
 ## Command
 
@@ -20,7 +20,7 @@ python scripts/consolidate_transcripts.py <channel_name> [--limit WORDS] [--verb
 | Option | Description | Default |
 |--------|-------------|---------|
 | `channel_name` | Folder name in `data/` | Required |
-| `--limit, -l` | Maximum words to include | 900000 |
+| `--limit, -l` | Maximum words to include | 550000 |
 | `--verbose, -v` | Show detailed file list | False |
 
 ## Instructions
@@ -43,7 +43,7 @@ python scripts/consolidate_transcripts.py <channel_name> [--limit WORDS] [--verb
 ## Examples
 
 ```bash
-# Consolidate library-of-minds (up to 900K words)
+# Consolidate library-of-minds (up to 550K words)
 python scripts/consolidate_transcripts.py library-of-minds
 
 # Consolidate with custom word limit
@@ -69,7 +69,7 @@ The consolidated file includes:
 
 ## Use Cases
 
-- **LLM Context**: Prepare transcripts for Claude/GPT analysis with ~900K word context window
+- **LLM Context**: Prepare transcripts for Claude/GPT analysis with ~550K word context window
 - **Search/RAG**: Create a single searchable document per channel
 - **Backup**: Consolidated archive of channel content
 - **Analysis**: Bulk text analysis across multiple videos

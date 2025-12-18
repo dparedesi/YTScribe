@@ -3,7 +3,7 @@
 Consolidate transcripts from a channel into a single file.
 
 Sorts transcripts by date (newest first) and combines them until
-reaching the word limit (default: 900,000 words).
+reaching the word limit (default: 550,000 words).
 
 Usage:
     python scripts/consolidate_transcripts.py <channel_name> [--limit WORDS]
@@ -60,7 +60,7 @@ def get_transcript_body(content: str) -> str:
 
 def consolidate_transcripts(
     channel_name: str,
-    word_limit: int = 900_000,
+    word_limit: int = 550_000,
     data_dir: Path = None,
     output_dir: Path = None,
 ) -> dict:
@@ -69,7 +69,7 @@ def consolidate_transcripts(
 
     Args:
         channel_name: Name of the channel folder in data/
-        word_limit: Maximum words to include (default: 900,000)
+        word_limit: Maximum words to include (default: 550,000)
         data_dir: Path to data directory (default: data/)
         output_dir: Path to output directory (default: consolidated/)
 
@@ -195,8 +195,8 @@ def main():
     parser.add_argument(
         "--limit", "-l",
         type=int,
-        default=900_000,
-        help="Maximum words to include (default: 900000)"
+        default=550_000,
+        help="Maximum words to include (default: 550000)"
     )
     parser.add_argument(
         "--verbose", "-v",
