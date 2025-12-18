@@ -5,7 +5,9 @@ description: Extract video metadata from a YouTube channel and save to CSV for t
 
 # Extract Videos from YouTube Channel
 
-Extract video metadata from a YouTube channel and save to a CSV file for tracking.
+## Overview
+
+Extract video metadata from a YouTube channel and save to a CSV file for tracking. This is typically the first step in the transcript download workflow.
 
 ## Command
 

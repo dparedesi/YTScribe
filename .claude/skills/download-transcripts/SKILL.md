@@ -5,7 +5,9 @@ description: Download YouTube transcripts for videos tracked in a CSV file. Use 
 
 # Download Transcripts from CSV
 
-Download YouTube transcripts for videos tracked in a CSV file.
+## Overview
+
+Download YouTube transcripts for videos tracked in a CSV file. Use after running `extract-videos` to build your video list, or with manually curated collections.
 
 ## Command
 

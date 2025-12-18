@@ -5,7 +5,9 @@ description: Extract videos from all enabled YouTube channels in channels.yaml. 
 
 # Sync All Channels
 
-Sequentially extract videos from all enabled YouTube channels configured in `data/channels.yaml`.
+## Overview
+
+Sequentially extract new videos from all enabled YouTube channels configured in `data/channels.yaml`. Run this before batch transcript downloads to ensure video lists are up-to-date.
 
 ## Command
 

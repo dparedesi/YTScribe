@@ -1,28 +1,23 @@
 ---
 name: download-all-transcripts
-description: Download transcripts for all data folders sequentially.
+description: Download transcripts for all data folders sequentially. Use for overnight batch processing or when you need to download pending transcripts across all channels and collections.
 ---
 
 # Download All Transcripts
 
-Sequentially download transcripts for ALL data folders (both channels and manual collections).
+## Overview
 
-## ⚠️ IMPORTANT: What to Do
+Sequentially download transcripts for ALL data folders (both channels and manual collections). This is a batch operation designed for overnight runs.
 
-**JUST RUN THE COMMAND BELOW. DO NOT:**
-- Read or inspect the script file
-- Read the Python CLI or project files
-- Try to validate or understand the implementation
-- Manually reconstruct the logic yourself
-- Run the Python module directly
+## Command
 
-**Simply execute this single command in background mode (the script is already executable):**
+Run this single command — the script handles all logic internally:
 
 ```bash
 ./scripts/download_all_transcripts.sh
 ```
 
-That's it. The script handles everything. No need to monitor it closely because it takes a long time to run (due to the 60 seconds delay between videos)
+> **Note**: This is a self-contained script. No need to inspect or reconstruct its logic — just execute it.
 
 ## What It Does
 

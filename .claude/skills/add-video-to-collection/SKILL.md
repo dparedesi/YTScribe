@@ -5,7 +5,9 @@ description: Manually add individual YouTube URLs to a custom collection CSV. Us
 
 # Add Video to Collection
 
-Manually add individual YouTube video URLs to a custom collection CSV file.
+## Overview
+
+Add individual YouTube video URLs to a custom collection CSV file. Use this for curated collections like `library-of-minds` or `random`, where videos come from various sources rather than a single channel.
 
 ## Use Cases
 
