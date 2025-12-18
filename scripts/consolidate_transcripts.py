@@ -102,9 +102,9 @@ def consolidate_transcripts(
 
     Args:
         channel_name: Name of the channel folder in data/
-        token_limit: Maximum tokens to include (default: 900,000)
+        token_limit: Maximum tokens to include (default: 800,000)
         data_dir: Path to data directory (default: data/)
-        output_dir: Path to output directory (default: consolidated/)
+        output_dir: Path to output directory (default: data/<channel>/)
 
     Returns:
         dict with stats about the consolidation
@@ -114,7 +114,7 @@ def consolidate_transcripts(
     if data_dir is None:
         data_dir = repo_root / "data"
     if output_dir is None:
-        output_dir = repo_root / "consolidated"
+        output_dir = data_dir / channel_name
 
     transcripts_dir = data_dir / channel_name / "transcripts"
 

@@ -7,7 +7,7 @@ description: Consolidate transcripts from a channel into a single file, sorted b
 
 ## Overview
 
-Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the token limit (default: 800,000 tokens). Output is saved to the `consolidated/` folder.
+Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the token limit (default: 800,000 tokens). Output is saved directly in the channel folder (`data/<channel>/`).
 
 Uses `tiktoken` for accurate token counting to ensure consolidated files fit within LLM context windows.
 
@@ -46,7 +46,7 @@ pip install tiktoken
 
 3. Output will be saved to:
    ```
-   consolidated/<channel_name>-consolidated.md
+   data/<channel_name>/<channel_name>-consolidated.md
    ```
 
 ## Examples
@@ -87,7 +87,7 @@ The consolidated file includes:
 
 - Transcripts are sorted **newest first** (descending by date)
 - Files without dates in filename are placed last
-- The `consolidated/` folder is gitignored (not pushed to remote)
+- Consolidated files (`*-consolidated.md`) are gitignored (not pushed to remote)
 - Re-running overwrites the previous consolidated file for that channel
 - Token counting uses `cl100k_base` encoding (GPT-4/Claude compatible)
 - Default 800K token limit leaves ~200K tokens for prompts and responses

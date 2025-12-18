@@ -54,7 +54,7 @@ Desktop.ini
 
 # Project specific
 outputs/
-consolidated/
+data/*/**-consolidated.md
 *.log
 
 # IDE cache
