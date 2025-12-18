@@ -1,13 +1,13 @@
 ---
 name: extract-videos
-description: Extract video metadata from a YouTube channel and save to CSV for tracking. Use when you need to build a list of videos from a YouTube channel.
+description: Extract video metadata from a YouTube channel and save to CSV for tracking. This skill ONLY populates the CSV and does NOT download transcripts.
 ---
 
 # Extract Videos from YouTube Channel
 
 ## Overview
 
-Extract video metadata from a YouTube channel and save to a CSV file for tracking. This is typically the first step in the transcript download workflow.
+Extract video metadata from a YouTube channel and save to a CSV file for tracking. This skill is strictly for generating the video list. It does not perform any transcript downloads.
 
 ## Command
 
