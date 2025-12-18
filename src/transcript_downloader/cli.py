@@ -172,6 +172,11 @@ def _run_batch_download(args: argparse.Namespace) -> None:
         if not url:
             if "transcript_downloaded" not in row or not row.get("transcript_downloaded"):
                 row["transcript_downloaded"] = "skipped (no URL)"
+                # Save progress for skipped URLs
+                try:
+                    update_csv_status(args.csv, rows, fieldnames)
+                except CSVError as e:
+                    logger.warning(f"Could not save CSV progress: {e}")
             progress.processed += 1
             continue
 
@@ -189,15 +194,27 @@ def _run_batch_download(args: argparse.Namespace) -> None:
             row["transcript_downloaded"] = "error: invalid URL"
             progress.processed += 1
             progress.errors += 1
+            # Save progress for invalid URLs
+            try:
+                update_csv_status(args.csv, rows, fieldnames)
+            except CSVError as e:
+                logger.warning(f"Could not save CSV progress: {e}")
             continue
 
-        # Check if file already exists
-        output_file = Path(args.output_dir) / f"{video_id}.md"
-        if output_file.exists():
+        # Check if file already exists (with or without date prefix)
+        # Files are saved as YYYY-MM-DD-{video_id}.md or {video_id}.md
+        output_dir = Path(args.output_dir)
+        possible_files = list(output_dir.glob(f"*{video_id}.md"))
+        if possible_files:
             logger.info(f"[{i}/{progress.total}] ⊘ Skipping {video_id} (file exists)")
             row["transcript_downloaded"] = "success (already exists)"
             progress.processed += 1
             progress.success += 1
+            # Save progress for files that already exist
+            try:
+                update_csv_status(args.csv, rows, fieldnames)
+            except CSVError as e:
+                logger.warning(f"Could not save CSV progress: {e}")
             continue
 
         logger.info(f"[{i}/{progress.total}] Downloading: {video_id}")
@@ -228,6 +245,12 @@ def _run_batch_download(args: argparse.Namespace) -> None:
             else:
                 row["transcript_downloaded"] = f"error: {result.error_message or 'unknown'}"
                 progress.errors += 1
+            
+            # Save progress after each video
+            try:
+                update_csv_status(args.csv, rows, fieldnames)
+            except CSVError as e:
+                logger.warning(f"Could not save CSV progress: {e}")
 
         except IPBlockedError:
             logger.error("\n⚠️  STOPPING: IP blocked by YouTube. Saving progress...")
