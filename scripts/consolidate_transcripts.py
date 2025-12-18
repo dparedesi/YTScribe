@@ -3,10 +3,13 @@
 Consolidate transcripts from a channel into a single file.
 
 Sorts transcripts by date (newest first) and combines them until
-reaching the word limit (default: 550,000 words).
+reaching the token limit (default: 900,000 tokens).
+
+Uses tiktoken for accurate token counting to ensure consolidated files
+fit within LLM context windows.
 
 Usage:
-    python scripts/consolidate_transcripts.py <channel_name> [--limit WORDS]
+    python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS]
 
 Examples:
     python scripts/consolidate_transcripts.py library-of-minds
@@ -19,6 +22,41 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+try:
+    import tiktoken
+    TIKTOKEN_AVAILABLE = True
+except ImportError:
+    TIKTOKEN_AVAILABLE = False
+
+
+# Cache the encoder to avoid re-creating it for each file
+_encoder = None
+
+
+def get_encoder():
+    """Get tiktoken encoder (cached)."""
+    global _encoder
+    if _encoder is None:
+        if not TIKTOKEN_AVAILABLE:
+            raise ImportError(
+                "tiktoken is required for token counting. "
+                "Install it with: pip install tiktoken"
+            )
+        # Use cl100k_base which is used by GPT-4 and similar to Claude's tokenizer
+        _encoder = tiktoken.get_encoding("cl100k_base")
+    return _encoder
+
+
+def count_tokens(text: str) -> int:
+    """Count tokens in text using tiktoken."""
+    encoder = get_encoder()
+    return len(encoder.encode(text))
+
+
+def count_words(text: str) -> int:
+    """Count words in text."""
+    return len(text.split())
+
 
 def extract_date_from_filename(filename: str) -> str:
     """Extract date from filename format: YYYY-MM-DD-{video_id}.md"""
@@ -26,11 +64,6 @@ def extract_date_from_filename(filename: str) -> str:
     if match:
         return match.group(1)
     return "0000-00-00"  # Files without date go last
-
-
-def count_words(text: str) -> int:
-    """Count words in text."""
-    return len(text.split())
 
 
 def extract_title_from_frontmatter(content: str) -> str:
@@ -60,7 +93,7 @@ def get_transcript_body(content: str) -> str:
 
 def consolidate_transcripts(
     channel_name: str,
-    word_limit: int = 550_000,
+    token_limit: int = 900_000,
     data_dir: Path = None,
     output_dir: Path = None,
 ) -> dict:
@@ -69,7 +102,7 @@ def consolidate_transcripts(
 
     Args:
         channel_name: Name of the channel folder in data/
-        word_limit: Maximum words to include (default: 550,000)
+        token_limit: Maximum tokens to include (default: 900,000)
         data_dir: Path to data directory (default: data/)
         output_dir: Path to output directory (default: consolidated/)
 
@@ -97,23 +130,26 @@ def consolidate_transcripts(
     # Sort by date in filename (newest first)
     transcript_files.sort(key=lambda f: extract_date_from_filename(f.name), reverse=True)
 
-    # Collect transcripts until word limit
+    # Collect transcripts until token limit
     consolidated_parts = []
     included_files = []
+    total_tokens = 0
     total_words = 0
     skipped_files = []
 
     for filepath in transcript_files:
         content = filepath.read_text(encoding="utf-8")
         body = get_transcript_body(content)
+        token_count = count_tokens(body)
         word_count = count_words(body)
 
         # Check if adding this file would exceed limit
-        if total_words + word_count > word_limit:
+        if total_tokens + token_count > token_limit:
             skipped_files.append({
                 "file": filepath.name,
+                "tokens": token_count,
                 "words": word_count,
-                "reason": "word_limit_exceeded"
+                "reason": "token_limit_exceeded"
             })
             continue
 
@@ -131,15 +167,17 @@ def consolidate_transcripts(
             separator += f"**Author:** {author}\n"
         if video_url:
             separator += f"**Source:** {video_url}\n"
-        separator += f"**Words:** {word_count:,}\n\n"
+        separator += f"**Tokens:** {token_count:,} | **Words:** {word_count:,}\n\n"
 
         consolidated_parts.append(separator + body)
         included_files.append({
             "file": filepath.name,
             "title": title,
             "date": date,
+            "tokens": token_count,
             "words": word_count
         })
+        total_tokens += token_count
         total_words += word_count
 
     # Create output directory if needed
@@ -151,19 +189,20 @@ def consolidate_transcripts(
 
 **Generated:** {timestamp}
 **Total transcripts:** {len(included_files)}
+**Total tokens:** {total_tokens:,}
 **Total words:** {total_words:,}
-**Word limit:** {word_limit:,}
+**Token limit:** {token_limit:,}
 **Skipped:** {len(skipped_files)} files (would exceed limit)
 
 ## Included Transcripts
 
-| # | Date | Title | Words |
-|---|------|-------|-------|
+| # | Date | Title | Tokens | Words |
+|---|------|-------|--------|-------|
 """
 
     for i, f in enumerate(included_files, 1):
-        title_truncated = f["title"][:50] + "..." if len(f["title"]) > 50 else f["title"]
-        header += f"| {i} | {f['date']} | {title_truncated} | {f['words']:,} |\n"
+        title_truncated = f["title"][:45] + "..." if len(f["title"]) > 45 else f["title"]
+        header += f"| {i} | {f['date']} | {title_truncated} | {f['tokens']:,} | {f['words']:,} |\n"
 
     header += "\n---\n"
 
@@ -172,13 +211,18 @@ def consolidate_transcripts(
     output_content = header + "".join(consolidated_parts)
     output_file.write_text(output_content, encoding="utf-8")
 
+    # Count tokens in final output (includes header and formatting)
+    final_token_count = count_tokens(output_content)
+
     return {
         "channel": channel_name,
         "output_file": str(output_file),
         "included_count": len(included_files),
         "skipped_count": len(skipped_files),
+        "total_tokens": total_tokens,
         "total_words": total_words,
-        "word_limit": word_limit,
+        "final_tokens": final_token_count,
+        "token_limit": token_limit,
         "included_files": included_files,
         "skipped_files": skipped_files
     }
@@ -195,8 +239,8 @@ def main():
     parser.add_argument(
         "--limit", "-l",
         type=int,
-        default=550_000,
-        help="Maximum words to include (default: 550000)"
+        default=900_000,
+        help="Maximum tokens to include (default: 900000)"
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -210,20 +254,25 @@ def main():
         result = consolidate_transcripts(args.channel, args.limit)
 
         print(f"\n✅ Consolidated {result['included_count']} transcripts")
+        print(f"   Total tokens: {result['total_tokens']:,} (content)")
+        print(f"   Final tokens: {result['final_tokens']:,} (with headers)")
         print(f"   Total words: {result['total_words']:,}")
-        print(f"   Skipped: {result['skipped_count']} files (exceeded {result['word_limit']:,} word limit)")
+        print(f"   Skipped: {result['skipped_count']} files (exceeded {result['token_limit']:,} token limit)")
         print(f"   Output: {result['output_file']}")
 
         if args.verbose and result['included_files']:
             print("\n📄 Included transcripts:")
             for f in result['included_files']:
-                print(f"   - {f['date']} | {f['title'][:40]}... ({f['words']:,} words)")
+                print(f"   - {f['date']} | {f['title'][:40]}... ({f['tokens']:,} tokens)")
 
         if args.verbose and result['skipped_files']:
             print("\n⏭️  Skipped transcripts:")
             for f in result['skipped_files']:
-                print(f"   - {f['file']} ({f['words']:,} words)")
+                print(f"   - {f['file']} ({f['tokens']:,} tokens)")
 
+    except ImportError as e:
+        print(f"❌ {e}", file=sys.stderr)
+        sys.exit(1)
     except ValueError as e:
         print(f"❌ Error: {e}", file=sys.stderr)
         sys.exit(1)
