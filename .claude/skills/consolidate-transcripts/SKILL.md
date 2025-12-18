@@ -1,13 +1,13 @@
 ---
 name: consolidate-transcripts
-description: Consolidate transcripts from a channel into a single file, sorted by date (newest first), up to 900K tokens. Use when preparing transcripts for LLM context or bulk analysis.
+description: Consolidate transcripts from a channel into a single file, sorted by date (newest first), up to 800K tokens. Use when preparing transcripts for LLM context or bulk analysis.
 ---
 
 # Consolidate Transcripts
 
 ## Overview
 
-Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the token limit (default: 900,000 tokens). Output is saved to the `consolidated/` folder.
+Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the token limit (default: 800,000 tokens). Output is saved to the `consolidated/` folder.
 
 Uses `tiktoken` for accurate token counting to ensure consolidated files fit within LLM context windows.
 
@@ -22,7 +22,7 @@ python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS] [--ver
 | Option | Description | Default |
 |--------|-------------|---------|
 | `channel_name` | Folder name in `data/` | Required |
-| `--limit, -l` | Maximum tokens to include | 900000 |
+| `--limit, -l` | Maximum tokens to include | 800000 |
 | `--verbose, -v` | Show detailed file list | False |
 
 ## Prerequisites
@@ -52,7 +52,7 @@ pip install tiktoken
 ## Examples
 
 ```bash
-# Consolidate library-of-minds (up to 900K tokens)
+# Consolidate library-of-minds (up to 800K tokens)
 python scripts/consolidate_transcripts.py library-of-minds
 
 # Consolidate with custom token limit
@@ -90,4 +90,4 @@ The consolidated file includes:
 - The `consolidated/` folder is gitignored (not pushed to remote)
 - Re-running overwrites the previous consolidated file for that channel
 - Token counting uses `cl100k_base` encoding (GPT-4/Claude compatible)
-- Default 900K token limit leaves ~100K tokens for prompts and responses
+- Default 800K token limit leaves ~200K tokens for prompts and responses

@@ -25,8 +25,6 @@ Read all `SKILL.md` files from `.claude/skills/*/SKILL.md` and extract:
 - `description` from frontmatter
 - Key command from the `## Command` section (if present)
 
-Skip this skill (`sync-agent-configs`) from the list — it's meta and shouldn't be in the proxy files.
-
 ### Step 2: Update Available Skills Table
 
 In both proxy files, update the "Available Skills" table with format:

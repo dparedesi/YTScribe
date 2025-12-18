@@ -21,6 +21,7 @@ When the user says `skill: {name}` or `run {name}`, look for a matching skill fo
 | `skill: add-video-to-collection` | `.claude/skills/add-video-to-collection/SKILL.md` | Manually add a video URL to a collection |
 | `skill: sync-all-channels` | `.claude/skills/sync-all-channels/SKILL.md` | Batch sync all enabled channels |
 | `skill: download-all-transcripts` | `.claude/skills/download-all-transcripts/SKILL.md` | Batch download all pending transcripts |
+| `skill: consolidate-transcripts` | `.claude/skills/consolidate-transcripts/SKILL.md` | Consolidate channel transcripts into single file |
 | `skill: sync-agent-configs` | `.claude/skills/sync-agent-configs/SKILL.md` | Sync skill definitions to agent proxy files |
 
 ### How to Use Skills
@@ -73,6 +74,12 @@ Requires `yq` installed (`brew install yq`)
 ```bash
 ./scripts/download_all_transcripts.sh
 ```
+
+### consolidate-transcripts
+```bash
+python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS] [--verbose]
+```
+Consolidates transcripts from a channel into a single file (newest first, up to 800K tokens).
 
 ### sync-agent-configs
 This is a maintenance skill. When invoked:

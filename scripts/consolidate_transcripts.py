@@ -3,7 +3,7 @@
 Consolidate transcripts from a channel into a single file.
 
 Sorts transcripts by date (newest first) and combines them until
-reaching the token limit (default: 900,000 tokens).
+reaching the token limit (default: 800,000 tokens).
 
 Uses tiktoken for accurate token counting to ensure consolidated files
 fit within LLM context windows.
@@ -93,7 +93,7 @@ def get_transcript_body(content: str) -> str:
 
 def consolidate_transcripts(
     channel_name: str,
-    token_limit: int = 900_000,
+    token_limit: int = 800_000,
     data_dir: Path = None,
     output_dir: Path = None,
 ) -> dict:
@@ -239,8 +239,8 @@ def main():
     parser.add_argument(
         "--limit", "-l",
         type=int,
-        default=900_000,
-        help="Maximum tokens to include (default: 900000)"
+        default=800_000,
+        help="Maximum tokens to include (default: 800000)"
     )
     parser.add_argument(
         "--verbose", "-v",

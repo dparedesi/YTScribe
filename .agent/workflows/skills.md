@@ -13,6 +13,7 @@ This project uses a skills system. When the user requests a skill using `skill: 
 | `skill: add-video-to-collection` | `.claude/skills/add-video-to-collection/SKILL.md` | Manually add a video URL to a collection |
 | `skill: sync-all-channels` | `.claude/skills/sync-all-channels/SKILL.md` | Batch sync all enabled channels |
 | `skill: download-all-transcripts` | `.claude/skills/download-all-transcripts/SKILL.md` | Batch download all pending transcripts |
+| `skill: consolidate-transcripts` | `.claude/skills/consolidate-transcripts/SKILL.md` | Consolidate channel transcripts into single file |
 | `skill: sync-agent-configs` | `.claude/skills/sync-agent-configs/SKILL.md` | Sync skill definitions to agent proxy files |
 
 ### How to Handle Skill Commands
@@ -53,6 +54,7 @@ If unable to read skill files, use these commands directly:
 | add-video-to-collection | Edit `data/<collection>/videos.csv` and add URL row |
 | sync-all-channels | `./scripts/sync_all_channels.sh` |
 | download-all-transcripts | `./scripts/download_all_transcripts.sh` |
+| consolidate-transcripts | `python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS]` |
 | sync-agent-configs | Read all skills, update `.agent/workflows/skills.md` and `.github/copilot-instructions.md` |
 
 ## Project Structure
