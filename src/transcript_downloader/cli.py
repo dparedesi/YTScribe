@@ -387,5 +387,87 @@ Examples:
             print(video.video_id)
 
 
+def add_main() -> None:
+    """Main entry point for adding videos to a collection CSV."""
+    parser = argparse.ArgumentParser(
+        prog="transcript-add",
+        description="Add a YouTube video URL to a collection CSV",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Add a video to the random collection
+  transcript-add https://www.youtube.com/watch?v=VIDEO_ID --csv data/random/videos.csv
+  
+  # Add a video to library-of-minds
+  transcript-add https://www.youtube.com/watch?v=VIDEO_ID --csv data/library-of-minds/videos.csv
+        """,
+    )
+    parser.add_argument("url", help="YouTube video URL to add")
+    parser.add_argument(
+        "--csv",
+        required=True,
+        metavar="FILE",
+        help="CSV file to add the video to",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose output",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    import logging
+
+    setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    # Validate URL and extract video ID
+    try:
+        video_id = extract_video_id(args.url)
+    except InvalidURLError:
+        logger.error(f"Invalid YouTube URL: {args.url}")
+        sys.exit(1)
+
+    # Create VideoMetadata with canonical URL
+    from transcript_downloader.models import VideoMetadata
+
+    video = VideoMetadata(
+        video_id=video_id,
+        url=f"https://www.youtube.com/watch?v={video_id}",
+    )
+
+    # Ensure CSV directory exists
+    csv_path = Path(args.csv)
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Create CSV with header if it doesn't exist
+    if not csv_path.exists():
+        fieldnames = ensure_csv_columns([])
+        with open(csv_path, "w", encoding="utf-8", newline="") as f:
+            import csv
+
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+        logger.info(f"Created new CSV file: {args.csv}")
+
+    # Add video to CSV
+    try:
+        added = append_videos_to_csv(args.csv, [video])
+        if added > 0:
+            logger.info(f"✓ Added video {video_id} to {args.csv}")
+        else:
+            logger.info(f"⊘ Video {video_id} already exists in {args.csv}")
+    except CSVError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     download_main()

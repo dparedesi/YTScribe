@@ -15,41 +15,36 @@ Add individual YouTube video URLs to a custom collection CSV file. Use this for 
 - Adding one-off videos that aren't from a specific channel
 - Building custom playlists of interesting videos
 
-## CSV Format
-
-The CSV should have these columns:
-```csv
-url,title,duration_minutes,view_count,description,published_date,transcript_downloaded,summary_done
-```
-
 ## Instructions
 
-1. **Identify the target collection folder** in `data/`:
-   - `data/library-of-minds/videos.csv`
-   - `data/random/videos.csv`
-   - Or create a new folder: `mkdir -p data/<collection-name>`
+**ALWAYS use the `transcript-add` CLI command** to add videos. This ensures:
+- Duplicate detection (skips if URL already exists)
+- Proper CSV formatting (no newline issues)
+- Canonical URL normalization
 
-2. **Add the URL to the CSV**:
-   - Open the CSV file
-   - Add a new row with at minimum the `url` column filled
-   - Other columns can be left empty or populated if known
+### Command
 
-3. **Example row to add**:
-   ```csv
-   https://www.youtube.com/watch?v=VIDEO_ID,Optional Title,,,,,
-   ```
+```bash
+transcript-add <youtube-url> --csv data/<collection>/videos.csv
+```
 
-4. **After adding**, run transcript download:
-   ```bash
-   transcript-download \
-     --csv data/<collection-name>/videos.csv \
-     --output-dir data/<collection-name>/transcripts
-   ```
+### Examples
+
+```bash
+# Add to random collection
+transcript-add https://www.youtube.com/watch?v=VIDEO_ID --csv data/random/videos.csv
+
+# Add to library-of-minds
+transcript-add https://www.youtube.com/watch?v=abc123 --csv data/library-of-minds/videos.csv
+
+# Verbose output
+transcript-add https://www.youtube.com/watch?v=xyz789 --csv data/random/videos.csv -v
+```
 
 ## Existing Collections
 
-| Collection | Path | Purpose |
-|------------|------|---------|
+| Collection | CSV Path | Purpose |
+|------------|----------|---------|
 | library-of-minds | `data/library-of-minds/videos.csv` | Curated thought leaders & interviews |
 | random | `data/random/videos.csv` | Miscellaneous interesting videos |
 
@@ -58,12 +53,25 @@ url,title,duration_minutes,view_count,description,published_date,transcript_down
 User says: "Add this video to library-of-minds: https://www.youtube.com/watch?v=abc123"
 
 Action:
-1. Open `data/library-of-minds/videos.csv`
-2. Append row: `https://www.youtube.com/watch?v=abc123,,,,,,,`
-3. Optionally run transcript download
+```bash
+transcript-add https://www.youtube.com/watch?v=abc123 --csv data/library-of-minds/videos.csv
+```
+
+Expected output:
+- `✓ Added video abc123 to data/library-of-minds/videos.csv` (if new)
+- `⊘ Video abc123 already exists in data/library-of-minds/videos.csv` (if duplicate)
+
+## After Adding (Optional)
+
+Once you are done, ask the user if they also want to download transcript for the newly added video. If so, run:
+```bash
+transcript-download --csv data/<collection>/videos.csv --output-dir data/<collection>/transcripts
+```
 
 ## Notes
 
-- Duplicate URLs should be avoided (check before adding)
-- The `transcript_downloaded` column will be updated when transcripts are downloaded
+- **DO NOT manually edit CSV files** to add videos — always use `transcript-add`
+- The CLI automatically handles duplicate checking
+- URLs are normalized to canonical format: `https://www.youtube.com/watch?v=VIDEO_ID`
+- The CSV will be created with proper headers if it doesn't exist
 - Metadata (title, duration, etc.) will be populated during transcript download

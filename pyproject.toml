@@ -59,6 +59,7 @@ dev = [
 [project.scripts]
 transcript-download = "transcript_downloader.cli:download_main"
 transcript-extract = "transcript_downloader.cli:extract_main"
+transcript-add = "transcript_downloader.cli:add_main"
 
 [project.urls]
 Homepage = "https://github.com/dparedesi/YTScribe"
