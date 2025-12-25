@@ -26,7 +26,37 @@ transcript-extract <channel_url> --count <N> --append-csv <output.csv>
 
 ## Instructions
 
-1. If the folder doesn't exist, create the directory structure first:
+### Adding a New Channel (for recurring syncs)
+
+When adding a channel that will be synced regularly:
+
+1. Create the directory structure:
+   ```bash
+   mkdir -p data/<channel-name>
+   ```
+
+2. Add the channel to `data/channels.yaml`:
+   ```yaml
+   - folder: <channel-name>
+     url: https://www.youtube.com/@ChannelName/videos
+     count: 50  # Number of videos for FUTURE syncs
+     enabled: true
+   ```
+
+3. Run the initial extraction (can use a different count than configured):
+   ```bash
+   transcript-extract https://www.youtube.com/@ChannelName/videos \
+     --count 200 \
+     --append-csv data/<channel-name>/videos.csv
+   ```
+
+**Important**: The `count` in `channels.yaml` is for future automated syncs. The initial extraction can use a larger count to backfill historical videos.
+
+### One-time Extraction (no recurring sync)
+
+For conferences or one-off extractions that won't be synced:
+
+1. Create the directory:
    ```bash
    mkdir -p data/<conference-name>
    ```
@@ -45,15 +75,18 @@ transcript-extract <channel_url> --count <N> --append-csv <output.csv>
 ## Examples
 
 ```bash
-# Extract 100 videos from AWS re:Invent
+# New channel: Initial extraction of 200 videos, future syncs of 50
+# 1. mkdir -p data/noduslabs
+# 2. Add to channels.yaml with count: 50
+# 3. Run initial extraction:
+transcript-extract https://www.youtube.com/@noduslabs/videos \
+  --count 200 \
+  --append-csv data/noduslabs/videos.csv
+
+# One-time conference extraction (no recurring sync)
 transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
   --count 100 \
   --append-csv data/aws-reinvent-2025/videos.csv
-
-# Extract 50 videos from PyCon
-transcript-extract https://www.youtube.com/@PyConUS \
-  --count 50 \
-  --append-csv data/pycon-2024/videos.csv
 ```
 
 ## Notes
@@ -61,3 +94,5 @@ transcript-extract https://www.youtube.com/@PyConUS \
 - Channel URL format: `https://www.youtube.com/@ChannelName/videos`
 - CSV will be created if it doesn't exist, or appended to if it does
 - Duplicate videos (by URL) are automatically skipped
+- The `count` in `channels.yaml` controls future syncs via `sync-all-channels` skill
+- Initial extraction count can differ from the configured sync count
