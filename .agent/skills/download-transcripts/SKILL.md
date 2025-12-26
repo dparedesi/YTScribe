@@ -25,6 +25,9 @@ transcript-download --csv <input.csv> --output-dir <directory>
 | `--languages, -l` | Language codes to try | en en-US en-GB |
 | `--verbose, -v` | Enable verbose output | False |
 
+> [!CAUTION]
+> **NEVER set `--delay` below 30 seconds.** YouTube will block your IP address if you make requests too quickly. The default of 60 seconds exists for a reason. Do NOT reduce the delay "to speed things up" - you WILL get banned and may have to wait hours (or longer) before you can download any transcripts again.
+
 ## Instructions
 
 1. Ensure you have a CSV file with video URLs (use `extract-videos` skill first)

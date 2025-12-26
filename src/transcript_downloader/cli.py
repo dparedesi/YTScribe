@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import yaml
+
 from transcript_downloader import __version__
 from transcript_downloader.csv_handler import (
     append_videos_to_csv,
@@ -99,6 +101,21 @@ Examples:
 
     # Setup logging
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    # Warn about low delay values
+    if args.delay < 30:
+        print("\n" + "=" * 60)
+        print("⚠️  WARNING: Delay is set below 30 seconds!")
+        print("=" * 60)
+        print(f"You specified --delay {args.delay}, which is very aggressive.")
+        print("YouTube WILL block your IP if you make requests too quickly.")
+        print("This block can last hours or even longer.")
+        print("=" * 60)
+        response = input("\nProceed at your own risk? (yes/no): ").strip().lower()
+        if response != "yes":
+            print("Aborted. Consider using --delay 60 (default) or higher.")
+            sys.exit(0)
+        print("")
 
     # Batch mode
     if args.csv:
@@ -335,6 +352,11 @@ Examples:
         help="Enable verbose output",
     )
     parser.add_argument(
+        "--register-channel",
+        action="store_true",
+        help="Register channel in data/channels.yaml for future syncs",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
@@ -368,6 +390,14 @@ Examples:
         except CSVError as e:
             logger.error(str(e))
             sys.exit(1)
+        
+        # Register channel if requested
+        if args.register_channel:
+            _register_channel(
+                csv_path=args.append_csv,
+                channel_url=args.channel_url,
+                count=args.count,
+            )
     elif args.output:
         try:
             with open(args.output, "w", encoding="utf-8") as f:
@@ -381,6 +411,68 @@ Examples:
         # Print video IDs to stdout
         for video in videos:
             print(video.video_id)
+
+
+def _register_channel(csv_path: str, channel_url: str, count: int) -> None:
+    """Register a channel in data/channels.yaml for future syncs.
+    
+    Args:
+        csv_path: Path to the CSV file (e.g., data/veritasium/videos.csv)
+        channel_url: YouTube channel URL
+        count: Number of videos to sync in future runs
+    """
+    # Extract folder name from CSV path (e.g., data/veritasium/videos.csv -> veritasium)
+    csv_path_obj = Path(csv_path)
+    folder_name = csv_path_obj.parent.name
+    
+    if folder_name == "data" or not folder_name:
+        logger.warning("Could not determine folder name from CSV path. Skipping channel registration.")
+        return
+    
+    # Ensure channel URL ends with /videos
+    if not channel_url.endswith("/videos"):
+        channel_url = channel_url.rstrip("/") + "/videos"
+    
+    # Path to channels.yaml (relative to data folder)
+    channels_yaml_path = csv_path_obj.parent.parent / "channels.yaml"
+    
+    # Load existing channels or create new structure
+    channels: list = []
+    if channels_yaml_path.exists():
+        try:
+            with open(channels_yaml_path, "r", encoding="utf-8") as f:
+                content = yaml.safe_load(f)
+                if isinstance(content, list):
+                    channels = content
+        except Exception as e:
+            logger.warning(f"Could not read channels.yaml: {e}")
+            return
+    
+    # Check if channel already exists (by folder or URL)
+    for channel in channels:
+        if channel.get("folder") == folder_name:
+            logger.info(f"Channel '{folder_name}' already registered in channels.yaml")
+            return
+        if channel.get("url") == channel_url:
+            logger.info(f"Channel URL already registered in channels.yaml")
+            return
+    
+    # Add new channel
+    new_channel = {
+        "folder": folder_name,
+        "url": channel_url,
+        "count": count,
+        "enabled": True,
+    }
+    channels.append(new_channel)
+    
+    # Write back to file
+    try:
+        with open(channels_yaml_path, "w", encoding="utf-8") as f:
+            yaml.dump(channels, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"✓ Registered channel '{folder_name}' in {channels_yaml_path}")
+    except Exception as e:
+        logger.error(f"Could not write to channels.yaml: {e}")
 
 
 def add_main() -> None:

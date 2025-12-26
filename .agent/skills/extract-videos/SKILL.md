@@ -21,6 +21,7 @@ transcript-extract <channel_url> --count <N> --append-csv <output.csv>
 |--------|-------------|---------|
 | `--count, -n` | Number of latest videos to extract | 10 |
 | `--append-csv` | Create or append to CSV file | - |
+| `--register-channel` | Register channel in `data/channels.yaml` for future syncs | False |
 | `--output, -o` | Save video IDs to text file | - |
 | `--verbose, -v` | Enable verbose output | False |
 
@@ -43,14 +44,15 @@ When adding a channel that will be synced regularly:
      enabled: true
    ```
 
-3. Run the initial extraction (can use a different count than configured):
+3. Run the initial extraction with `--register-channel`:
    ```bash
    transcript-extract https://www.youtube.com/@ChannelName/videos \
      --count 200 \
-     --append-csv data/<channel-name>/videos.csv
+     --append-csv data/<channel-name>/videos.csv \
+     --register-channel
    ```
 
-**Important**: The `count` in `channels.yaml` is for future automated syncs. The initial extraction can use a larger count to backfill historical videos.
+This automatically adds the channel to `channels.yaml` with the specified count.
 
 ### One-time Extraction (no recurring sync)
 
@@ -61,7 +63,7 @@ For conferences or one-off extractions that won't be synced:
    mkdir -p data/<conference-name>
    ```
 
-2. Run the extract command:
+2. Run the extract command (without `--register-channel`):
    ```bash
    transcript-extract https://www.youtube.com/@ChannelName/videos \
      --count 100 \
@@ -75,13 +77,12 @@ For conferences or one-off extractions that won't be synced:
 ## Examples
 
 ```bash
-# New channel: Initial extraction of 200 videos, future syncs of 50
-# 1. mkdir -p data/noduslabs
-# 2. Add to channels.yaml with count: 50
-# 3. Run initial extraction:
-transcript-extract https://www.youtube.com/@noduslabs/videos \
-  --count 200 \
-  --append-csv data/noduslabs/videos.csv
+# New channel with auto-registration (recommended)
+mkdir -p data/veritasium
+transcript-extract https://www.youtube.com/@veritasium/videos \
+  --count 50 \
+  --append-csv data/veritasium/videos.csv \
+  --register-channel
 
 # One-time conference extraction (no recurring sync)
 transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
@@ -94,5 +95,5 @@ transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
 - Channel URL format: `https://www.youtube.com/@ChannelName/videos`
 - CSV will be created if it doesn't exist, or appended to if it does
 - Duplicate videos (by URL) are automatically skipped
+- Use `--register-channel` to auto-add to `channels.yaml` for future syncs
 - The `count` in `channels.yaml` controls future syncs via `sync-all-channels` skill
-- Initial extraction count can differ from the configured sync count
