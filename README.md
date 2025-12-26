@@ -32,6 +32,8 @@ pip install -e .
 pip install -e ".[dev]"
 ```
 
+
+
 ## Quick Start
 
 ```bash
@@ -144,6 +146,51 @@ in the top right, clicking on settings, and then personalization...
 ```
 
 Files are named with the publish date for easy sorting: `2025-05-12-i_cskqmWA3U.md`
+
+### AI Summarization Setup
+
+To use the AI summarization features, you need an API key from [OpenRouter](https://openrouter.ai/).
+
+1.  **Get an API Key**: Sign up at OpenRouter and create a key.
+2.  **Configure Environment**:
+    Create a `.env` file in the project root:
+    ```bash
+    cp .env.example .env
+    ```
+    Add your key:
+    ```bash
+    OPENROUTER_API_KEY=sk-or-your-key-here
+    ```
+3.  **Recommended Model**:
+    By default, the tool uses `xiaomi/mimo-v2-flash:free`, which is free and fast. You can change this using the `--model` flag.
+
+### Summarize transcripts
+
+```bash
+transcript-summarize <folder_name> [options]
+```
+
+**Examples:**
+
+```bash
+# Summarize random folder
+transcript-summarize random
+
+# Summarize all folders
+transcript-summarize --all
+
+# Dry run to preview changes
+transcript-summarize random --dry-run
+```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--all` | Process all folders | False |
+| `--dry-run` | Preview changes without writing | False |
+| `--force` | overwrite existing summaries | False |
+| `--model` | OpenRouter model to use | `xiaomi/mimo-v2-flash:free` |
 
 ### CSV tracking format
 

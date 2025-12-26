@@ -5,17 +5,66 @@ description: Consolidate transcripts from a channel into a single file, sorted b
 
 # Consolidate Transcripts
 
-## Overview
+**Why?** LLMs have context limits. This skill merges multiple transcripts into a single file with accurate token counting, so you can feed an entire channel's content to Claude or GPT without exceeding limits.
 
-Combine multiple transcripts from a channel into a single consolidated file. Transcripts are sorted by date (newest first) and included until reaching the token limit (default: 800,000 tokens). Output is saved directly in the channel folder (`data/<channel>/`).
+## Quick Start
 
-Uses `tiktoken` for accurate token counting to ensure consolidated files fit within LLM context windows.
+```bash
+python scripts/consolidate_transcripts.py <channel_name>
+```
 
-## Command
+Output: `data/<channel_name>/<channel_name>-consolidated.md`
+
+---
+
+## Workflow
+
+### 1. Identify the Channel
+
+List available channels:
+```bash
+ls data/
+```
+
+### 2. Choose Token Limit
+
+| Use Case | Recommended Limit | Flag |
+|----------|-------------------|------|
+| Claude (200K context) | 150000 | `--limit 150000` |
+| GPT-4 Turbo (128K) | 100000 | `--limit 100000` |
+| Full archive (Claude Pro) | 800000 | (default) |
+| Quick sample | 50000 | `--limit 50000` |
+
+> [!TIP]
+> The default 800K limit leaves ~200K tokens for prompts and responses when using Claude's 1M context.
+
+### 3. Run Consolidation
 
 ```bash
 python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS] [--verbose]
 ```
+
+**Examples:**
+
+```bash
+# Default (800K tokens)
+python scripts/consolidate_transcripts.py library-of-minds
+
+# Custom limit for GPT-4
+python scripts/consolidate_transcripts.py aws-reinvent-2025 --limit 100000
+
+# Verbose output showing all included files
+python scripts/consolidate_transcripts.py dwarkesh-patel --verbose
+```
+
+### 4. Verify Output
+
+Check the consolidated file was created:
+```bash
+ls -la data/<channel_name>/*-consolidated.md
+```
+
+---
 
 ## Parameters
 
@@ -25,69 +74,43 @@ python scripts/consolidate_transcripts.py <channel_name> [--limit TOKENS] [--ver
 | `--limit, -l` | Maximum tokens to include | 800000 |
 | `--verbose, -v` | Show detailed file list | False |
 
-## Prerequisites
-
-Install tiktoken (one-time setup):
-```bash
-pip install tiktoken
-```
-
-## Instructions
-
-1. Identify the channel name (folder in `data/`):
-   ```bash
-   ls data/
-   ```
-
-2. Run the consolidation:
-   ```bash
-   python scripts/consolidate_transcripts.py <channel_name>
-   ```
-
-3. Output will be saved to:
-   ```
-   data/<channel_name>/<channel_name>-consolidated.md
-   ```
-
-## Examples
-
-```bash
-# Consolidate library-of-minds (up to 800K tokens)
-python scripts/consolidate_transcripts.py library-of-minds
-
-# Consolidate with custom token limit
-python scripts/consolidate_transcripts.py aws-reinvent-2025 --limit 500000
-
-# Verbose output showing all included files
-python scripts/consolidate_transcripts.py dwarkesh-patel --verbose
-```
+---
 
 ## Output Format
 
 The consolidated file includes:
 
-1. **Header** with generation metadata:
-   - Total transcripts included
-   - Total token and word count
-   - Table of contents with dates, titles, tokens, and words
+1. **Header** — Generation metadata, total transcripts, token/word counts
+2. **Table of Contents** — Dates, titles, tokens, words per transcript
+3. **Transcripts** — Full text with title, date, author, source URL
 
-2. **Transcripts** separated by markdown headers:
-   - Title, date, author, source URL
-   - Token and word count per transcript
-   - Full transcript text
+---
 
-## Use Cases
+## Troubleshooting
 
-- **LLM Context**: Prepare transcripts for Claude/GPT analysis within context limits
-- **Search/RAG**: Create a single searchable document per channel
-- **Backup**: Consolidated archive of channel content
-- **Analysis**: Bulk text analysis across multiple videos
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| `ModuleNotFoundError: tiktoken` | tiktoken not installed | `pip install tiktoken` |
+| `No transcripts found` | Empty transcripts folder | Run `transcript-download` first |
+| `FileNotFoundError` | Channel doesn't exist | Check `ls data/` for valid names |
+| Output file is small | Few transcripts available | Use `--verbose` to see what was included |
+| Token count seems wrong | Old tiktoken version | `pip install --upgrade tiktoken` |
 
-## Notes
+---
 
-- Transcripts are sorted **newest first** (descending by date)
+## Common Mistakes
+
+1. **Wrong channel name** — Use the folder name exactly as shown in `ls data/`, not the YouTube channel name.
+2. **Forgetting to download transcripts first** — Consolidation requires transcripts to exist. Run `/download-transcripts` first.
+3. **Using too high a limit** — If you exceed your LLM's context, you'll get truncation errors. Use the limit guide above.
+4. **Expecting real-time updates** — Re-run consolidation after downloading new transcripts.
+
+---
+
+## Reference
+
+- Transcripts sorted **newest first** (descending by date)
 - Files without dates in filename are placed last
-- Consolidated files (`*-consolidated.md`) are gitignored (not pushed to remote)
-- Re-running overwrites the previous consolidated file for that channel
 - Token counting uses `cl100k_base` encoding (GPT-4/Claude compatible)
-- Default 800K token limit leaves ~200K tokens for prompts and responses
+- Consolidated files are gitignored (not committed)
+- Re-running overwrites the previous consolidated file

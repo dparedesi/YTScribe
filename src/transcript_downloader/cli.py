@@ -555,5 +555,161 @@ Examples:
         sys.exit(1)
 
 
+def summarize_main() -> None:
+    """Main entry point for transcript summarization."""
+    parser = argparse.ArgumentParser(
+        prog="transcript-summarize",
+        description="Summarize YouTube transcripts using AI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Summarize a single folder
+  transcript-summarize OpenAI
+  
+  # Summarize all folders
+  transcript-summarize --all
+  
+  # Dry run to see what would be processed
+  transcript-summarize --all --dry-run
+  
+  # Force re-summarization with custom model
+  transcript-summarize a16z --force --model moonshotai/kimi-k2:free
+        """,
+    )
+    parser.add_argument(
+        "folder",
+        nargs="?",
+        help="Specific folder in data/ to process (e.g., 'OpenAI')",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Process all folders in data/",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be processed without making changes",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-summarize files that already have summaries",
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=4.0,
+        metavar="SECONDS",
+        help="Seconds between API requests (default: 4)",
+    )
+    parser.add_argument(
+        "--model",
+        default="xiaomi/mimo-v2-flash:free",
+        help="OpenRouter model to use (default: xiaomi/mimo-v2-flash:free)",
+    )
+    parser.add_argument(
+        "--max-words",
+        type=int,
+        default=500,
+        metavar="N",
+        help="Target word count for summary (default: 500)",
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose output",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
+
+    # Validate arguments
+    if not args.folder and not args.all:
+        parser.error("Either provide a folder name or use --all")
+
+    # Check for API key
+    import os
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        logger.error("OPENROUTER_API_KEY environment variable not set")
+        logger.error("Set it with: export OPENROUTER_API_KEY=your_key_here")
+        sys.exit(1)
+
+    # Import summarizer module
+    from transcript_downloader.summarizer import (
+        get_data_folders,
+        process_folder,
+        BatchSummarizeProgress,
+    )
+
+    # Determine data directory
+    data_dir = Path("data")
+    if not data_dir.exists():
+        # Try relative to script location
+        data_dir = Path(__file__).parent.parent.parent / "data"
+    
+    if not data_dir.exists():
+        logger.error(f"Data directory not found: {data_dir}")
+        sys.exit(1)
+
+    # Get folders to process
+    if args.all:
+        folders = get_data_folders(data_dir)
+        if not folders:
+            logger.error("No folders with transcripts found")
+            sys.exit(1)
+        logger.info(f"Processing {len(folders)} folders...")
+    else:
+        folder_path = data_dir / args.folder
+        if not folder_path.exists():
+            logger.error(f"Folder not found: {folder_path}")
+            sys.exit(1)
+        folders = [folder_path]
+
+    # Process folders
+    total_progress = BatchSummarizeProgress(total=0)
+    
+    for folder in folders:
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"Processing: {folder.name}")
+        logger.info(f"{'=' * 60}")
+        
+        progress = process_folder(
+            folder_path=folder,
+            api_key=api_key,
+            model=args.model,
+            max_words=args.max_words,
+            delay=args.delay,
+            force=args.force,
+            dry_run=args.dry_run,
+            verbose=args.verbose,
+        )
+        
+        total_progress.total += progress.total
+        total_progress.processed += progress.processed
+        total_progress.success += progress.success
+        total_progress.skipped += progress.skipped
+        total_progress.errors += progress.errors
+
+    # Print summary
+    print(f"\n{'=' * 60}")
+    print("Summarization Complete!")
+    print(f"  Success: {total_progress.success}")
+    print(f"  Skipped: {total_progress.skipped}")
+    print(f"  Errors: {total_progress.errors}")
+    print(f"  Total: {total_progress.total}")
+    print(f"{'=' * 60}")
+
+
 if __name__ == "__main__":
     download_main()
+

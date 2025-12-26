@@ -44,6 +44,7 @@ dependencies = [
     "yt-dlp>=2023.0.0",
     "tiktoken>=0.5.0",
     "pyyaml>=6.0.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
@@ -61,6 +62,7 @@ dev = [
 transcript-download = "transcript_downloader.cli:download_main"
 transcript-extract = "transcript_downloader.cli:extract_main"
 transcript-add = "transcript_downloader.cli:add_main"
+transcript-summarize = "transcript_downloader.cli:summarize_main"
 
 [project.urls]
 Homepage = "https://github.com/dparedesi/YTScribe"
