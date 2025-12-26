@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-import os
+import logging
 import sys
 from pathlib import Path
 from typing import Optional
@@ -98,8 +98,6 @@ Examples:
     args = parser.parse_args()
 
     # Setup logging
-    import logging
-
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Batch mode
@@ -345,8 +343,6 @@ Examples:
     args = parser.parse_args()
 
     # Setup logging
-    import logging
-
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     logger.info(f"Extracting {args.count} latest videos from channel...")
@@ -424,8 +420,6 @@ Examples:
     args = parser.parse_args()
 
     # Setup logging
-    import logging
-
     setup_logging(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Validate URL and extract video ID

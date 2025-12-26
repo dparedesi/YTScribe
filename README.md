@@ -123,23 +123,27 @@ transcript-download https://www.youtube.com/watch?v=VIDEO_ID --output transcript
 
 ### Transcript files (Markdown with YAML frontmatter)
 
+Each transcript is saved as a Markdown file with rich metadata in the YAML frontmatter:
+
 ```markdown
 ---
-video_id: abc123xyz
-video_url: https://www.youtube.com/watch?v=abc123xyz
-title: Conference Talk Title
-author: Speaker Name
-published_date: 2025-01-15
-length_minutes: 45.5
-views: 1234
-description: "Talk description..."
-keywords: cloud, kubernetes, devops
-is_generated: False
+video_id: i_cskqmWA3U
+video_url: https://www.youtube.com/watch?v=i_cskqmWA3U
+title: Personalize ChatGPT with custom instructions
+author: OpenAI
+published_date: 2025-05-12
+length_minutes: 2.17
+views: 60882
+description: "With custom instructions, ChatGPT becomes more relevant..."
+is_generated: True
 is_translatable: True
 ---
 
-Full transcript text here...
+You can find memory and custom instructions by clicking on your profile
+in the top right, clicking on settings, and then personalization...
 ```
+
+Files are named with the publish date for easy sorting: `2025-05-12-i_cskqmWA3U.md`
 
 ### CSV tracking format
 
@@ -169,11 +173,12 @@ YTScribe/
 │       ├── exceptions.py        # Custom exceptions
 │       ├── logging_config.py    # Logging setup
 │       └── utils.py             # Utility functions
-├── scripts/                     # Utility scripts
+├── scripts/                     # Automation scripts
 ├── tests/                       # Unit tests
-├── data/                        # Downloaded data
-├── examples/                    # Example scripts
-├── pyproject.toml              # Project configuration
+├── data/                        # Downloaded transcripts
+├── prompts/                     # AI prompts for analysis
+├── examples/                    # Example shell scripts
+├── pyproject.toml               # Project configuration
 └── README.md
 ```
 

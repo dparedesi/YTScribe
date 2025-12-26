@@ -57,5 +57,8 @@ outputs/
 data/*/**-consolidated.md
 *.log
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # IDE cache
 .git/cursor/
