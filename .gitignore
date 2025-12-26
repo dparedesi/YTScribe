@@ -54,7 +54,7 @@ Desktop.ini
 
 # Project specific
 outputs/
-data/*/**-consolidated.md
+data/
 *.log
 
 # Claude Code local settings
