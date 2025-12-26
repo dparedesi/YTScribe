@@ -62,3 +62,4 @@ data/*/**-consolidated.md
 
 # IDE cache
 .git/cursor/
+.claude/
