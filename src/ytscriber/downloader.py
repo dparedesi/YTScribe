@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 from typing import Optional
@@ -14,21 +13,21 @@ from youtube_transcript_api._errors import (
     VideoUnavailable,
 )
 
-from transcript_downloader.exceptions import (
+from ytscriber.exceptions import (
     IPBlockedError,
     TranscriptNotFoundError,
     TranscriptsDisabledError,
     VideoNotFoundError,
 )
-from transcript_downloader.logging_config import get_logger
-from transcript_downloader.metadata import fetch_video_metadata
-from transcript_downloader.models import (
+from ytscriber.logging_config import get_logger
+from ytscriber.metadata import fetch_video_metadata
+from ytscriber.models import (
     DownloadStatus,
     TranscriptMetadata,
     TranscriptResult,
     VideoMetadata,
 )
-from transcript_downloader.utils import escape_yaml_string, extract_video_id
+from ytscriber.utils import escape_yaml_string, extract_video_id
 
 logger = get_logger("downloader")
 

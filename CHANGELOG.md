@@ -1,6 +1,24 @@
 # Changelog
 
-All notable changes to YTScribe will be documented in this file.
+All notable changes to YTScriber will be documented in this file.
+
+## [1.2.0] - 2025-01-11
+
+### Added
+- **PyPI package**: Published as `ytscriber` on PyPI (`pip install ytscriber`).
+- **Unified CLI**: Single `ytscriber <subcommand>` pattern replaces `transcript-*` commands.
+- **Cross-platform paths**: Data/config directories via `platformdirs` (`~/Documents/YTScriber` on macOS/Windows, `~/ytscriber` on Linux).
+- **New commands**: `sync-all`, `download-all`, `config`, and `status` subcommands.
+- **Auto-initialization**: Creates config/data folders automatically on first run.
+- **Improved --help**: All arguments now have help text, examples, and defaults shown.
+- **Edge case handling**: Helpful errors for video URL to extract, missing folders, missing API key.
+- **Rate limiting guidance**: VPN recommendations and overnight batch suggestions in warnings.
+
+### Changed
+- **CLI commands**: `transcript-extract` → `ytscriber extract`, `transcript-download` → `ytscriber download`, etc.
+- **--folder shorthand**: Use `--folder name` instead of explicit CSV paths.
+- **Configuration**: User settings stored in `~/.config/ytscriber/config.yaml`.
+- **Documentation**: Comprehensive README and CLAUDE.md for new workflows.
 
 ## [1.1.0] - 2025-12-26
 

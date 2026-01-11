@@ -1,8 +1,8 @@
-# AI Agent Instructions for YTScribe
+# AI Agent Instructions for YTScriber
 
 ## Project Overview
 
-YTScribe is a YouTube transcript downloader that:
+YTScriber is a YouTube transcript downloader that:
 
 - Extracts video metadata from YouTube channels
 - Downloads transcripts as markdown files with YAML frontmatter
@@ -11,15 +11,15 @@ YTScribe is a YouTube transcript downloader that:
 
 ## Key Directories
 
-- `src/transcript_downloader/` - Core Python package
-- `data/` - Downloaded data organized by source
+- `src/ytscriber/` - Core Python package
+- `~/Documents/YTScriber` (macOS/Windows) or `~/ytscriber` (Linux) - Downloaded data organized by source
 - `scripts/` - Automation scripts for batch operations
 - `prompts/` - AI prompts for transcript analysis
 - `.agent/skills/` - Skill definitions for Agents (create .claude symlink if needed)
 
 ## Configuration
 
-- `data/channels.yaml` - Channel configuration for batch operations
+- `channels.yaml` in the data directory - Channel configuration for batch operations
 - `pyproject.toml` - Python project configuration
 
 ## Available Skills Index
@@ -62,41 +62,39 @@ Use these commands directly:
 ### extract-videos
 
 ```bash
-transcript-extract <channel_url> --count <N> --append-csv data/<folder>/videos.csv
+ytscriber extract <channel_url> --count <N> --folder <folder> --register-channel
 ```
 
 ### download-transcripts
 
 ```bash
-transcript-download --csv data/<folder>/videos.csv --output-dir data/<folder>/transcripts
+ytscriber download --folder <folder>
 ```
 
 ### summarize-transcripts
 
 ```bash
-transcript-summarize <folder-name>
+ytscriber summarize <folder-name>
 # or
-transcript-summarize --all
+ytscriber summarize --all
 ```
 
 ### add-video-to-collection
 
 ```bash
-transcript-add <youtube_url> --csv data/<collection>/videos.csv
+ytscriber add <youtube_url> --folder <collection>
 ```
 
 ### sync-all-channels
 
 ```bash
-./scripts/sync_all_channels.sh
+ytscriber sync-all
 ```
-
-Requires `yq` installed (`brew install yq`)
 
 ### download-all-transcripts
 
 ```bash
-./scripts/download_all_transcripts.sh
+ytscriber download-all
 ```
 
 ### consolidate-transcripts

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from transcript_downloader.csv_handler import (
+from ytscriber.csv_handler import (
     append_videos_to_csv,
     ensure_csv_columns,
     get_download_status,
@@ -17,8 +17,8 @@ from transcript_downloader.csv_handler import (
     is_already_downloaded,
     read_video_urls,
 )
-from transcript_downloader.exceptions import CSVError
-from transcript_downloader.models import VideoMetadata
+from ytscriber.exceptions import CSVError
+from ytscriber.models import VideoMetadata
 
 
 class TestGetUrlFromRow:

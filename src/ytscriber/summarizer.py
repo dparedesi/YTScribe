@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import time
 from dataclasses import dataclass
@@ -12,12 +11,12 @@ from typing import Optional
 import requests
 import yaml
 
-from transcript_downloader.csv_handler import (
+from ytscriber.csv_handler import (
     get_url_from_row,
     read_video_urls,
     update_csv_status,
 )
-from transcript_downloader.logging_config import get_logger
+from ytscriber.logging_config import get_logger
 
 logger = get_logger("summarizer")
 

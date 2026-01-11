@@ -1,11 +1,11 @@
-# YTScribe: Conference Transcript Downloader
+# YTScriber
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Download YouTube transcripts from conference channels and organize them for analysis, summarization, and archival.
+Download YouTube transcripts and manage channel archives with a unified CLI.
 
 ## Features
 
@@ -13,12 +13,18 @@ Download YouTube transcripts from conference channels and organize them for anal
 - 📝 **Download transcripts** with metadata (title, author, duration, etc.)
 - 📄 **Save as markdown** files with YAML frontmatter for easy processing
 - 🔄 **Track progress** in CSV files to resume interrupted downloads
-- 🛡️ **Rate limiting** with automatic IP block detection
-- 🎯 **Type-safe** with full type hints and mypy support
+- **Cross-platform data directories** via `platformdirs`
+- **Unified CLI** with subcommands (`ytscriber download`, `extract`, `sync-all`)
 
 ## Installation
 
-### From source (recommended)
+### From PyPI
+
+```bash
+pip install ytscriber
+```
+
+### From source (recommended for development)
 
 ```bash
 git clone https://github.com/dparedesi/YTScribe.git
@@ -38,14 +44,13 @@ pip install -e ".[dev]"
 
 ```bash
 # Extract videos from a conference channel
-transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
+ytscriber extract https://www.youtube.com/@AWSEventsChannel/videos \
   --count 100 \
-  --append-csv data/aws-reinvent-2025/videos.csv
+  --folder aws-reinvent-2025 \
+  --register-channel
 
 # Download transcripts
-transcript-download \
-  --csv data/aws-reinvent-2025/videos.csv \
-  --output-dir data/aws-reinvent-2025/transcripts
+ytscriber download --folder aws-reinvent-2025
 ```
 
 ## Usage
@@ -53,26 +58,29 @@ transcript-download \
 ### Extract videos from a channel
 
 ```bash
-transcript-extract <channel_url> --count <number> --append-csv <output.csv>
+ytscriber extract <channel_url> --count <number> --folder <folder>
 ```
 
 **Examples:**
 
 ```bash
 # AWS re:Invent 2025
-transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
+ytscriber extract https://www.youtube.com/@AWSEventsChannel/videos \
   --count 100 \
-  --append-csv data/aws-reinvent-2025/videos.csv
+  --folder aws-reinvent-2025 \
+  --register-channel
 
 # PyCon US
-transcript-extract https://www.youtube.com/@PyConUS \
+ytscriber extract https://www.youtube.com/@PyConUS \
   --count 50 \
-  --append-csv data/pycon-2024/videos.csv
+  --folder pycon-2024 \
+  --register-channel
 
 # KubeCon
-transcript-extract https://www.youtube.com/@cncf/videos \
+ytscriber extract https://www.youtube.com/@cncf/videos \
   --count 75 \
-  --append-csv data/kubecon-2024/videos.csv
+  --folder kubecon-2024 \
+  --register-channel
 ```
 
 **Options:**
@@ -80,35 +88,33 @@ transcript-extract https://www.youtube.com/@cncf/videos \
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--count, -n` | Number of latest videos to extract | 10 |
+| `--folder` | Folder under data dir (shorthand for CSV) | - |
 | `--append-csv` | Create or append to CSV file | - |
 | `--output, -o` | Save video IDs to text file | - |
+| `--register-channel` | Add channel to channels.yaml | False |
 | `--verbose, -v` | Enable verbose output | False |
 
 ### Download transcripts
 
 ```bash
-transcript-download --csv <input.csv> --output-dir <directory>
+ytscriber download --folder <folder>
 ```
 
 **Examples:**
 
 ```bash
 # Download transcripts for AWS re:Invent
-transcript-download \
-  --csv data/aws-reinvent-2025/videos.csv \
-  --output-dir data/aws-reinvent-2025/transcripts
+ytscriber download --folder aws-reinvent-2025
 
 # With faster processing (shorter delay)
-transcript-download \
-  --csv data/pycon-2024/videos.csv \
-  --output-dir data/pycon-2024/transcripts \
-  --delay 30
+ytscriber download --folder pycon-2024 --delay 30
 ```
 
 **Options:**
 
 | Option | Description | Default |
 |--------|-------------|---------|
+| `--folder` | Folder under data dir (shorthand for CSV/output) | - |
 | `--csv` | Input CSV file with video URLs | - |
 | `--output-dir` | Directory for transcript files | outputs |
 | `--delay` | Seconds between requests | 60 |
@@ -118,7 +124,38 @@ transcript-download \
 **Single video mode:**
 
 ```bash
-transcript-download https://www.youtube.com/watch?v=VIDEO_ID --output transcript.md
+ytscriber download https://www.youtube.com/watch?v=VIDEO_ID --output transcript.md
+```
+
+### Add a video to a collection
+
+```bash
+ytscriber add <youtube_url> --folder <collection>
+```
+
+### Sync all channels
+
+```bash
+ytscriber sync-all
+```
+
+### Download all transcripts
+
+```bash
+ytscriber download-all
+```
+
+### View or edit config
+
+```bash
+ytscriber config
+ytscriber config --set defaults.delay=45
+```
+
+### Status
+
+```bash
+ytscriber status
 ```
 
 ## Output Format
@@ -163,24 +200,25 @@ To use the AI summarization features, you need an API key from [OpenRouter](http
     ```
 3.  **Recommended Model**:
     By default, the tool uses `xiaomi/mimo-v2-flash:free`, which is free and fast. You can change this using the `--model` flag.
+    You can also set defaults with `ytscriber config --set summarization.model=...`.
 
 ### Summarize transcripts
 
 ```bash
-transcript-summarize <folder_name> [options]
+ytscriber summarize <folder_name> [options]
 ```
 
 **Examples:**
 
 ```bash
 # Summarize random folder
-transcript-summarize random
+ytscriber summarize random
 
 # Summarize all folders
-transcript-summarize --all
+ytscriber summarize --all
 
 # Dry run to preview changes
-transcript-summarize random --dry-run
+ytscriber summarize random --dry-run
 ```
 
 **Options:**
@@ -209,7 +247,7 @@ https://youtube.com/watch?v=...,Talk Title,45.5,1234,Description...,success,
 ```
 YTScribe/
 ├── src/
-│   └── transcript_downloader/
+│   └── ytscriber/
 │       ├── __init__.py          # Package exports
 │       ├── cli.py               # Command-line interface
 │       ├── downloader.py        # Transcript downloading
@@ -222,7 +260,6 @@ YTScribe/
 │       └── utils.py             # Utility functions
 ├── scripts/                     # Automation scripts
 ├── tests/                       # Unit tests
-├── data/                        # Downloaded transcripts
 ├── prompts/                     # AI prompts for analysis
 ├── examples/                    # Example shell scripts
 ├── pyproject.toml               # Project configuration
@@ -231,10 +268,15 @@ YTScribe/
 
 ## Data Organization
 
-Organize your data however makes sense for your workflow:
+By default, data is stored in:
+
+- macOS/Windows: `~/Documents/YTScriber`
+- Linux: `~/ytscriber`
+
+Example structure:
 
 ```
-data/
+YTScriber/
 ├── aws-reinvent-2025/
 │   ├── videos.csv
 │   └── transcripts/
@@ -247,6 +289,19 @@ data/
     ├── videos.csv
     └── transcripts/
 ```
+
+## Migration (1.x to 2.0)
+
+If you used the old `transcript-*` commands and a repo-local `data/` folder:
+
+1. Move your existing `data/` folder into the new data directory above.
+2. Copy `channels.yaml` into the same data directory if you rely on sync-all.
+3. Update commands:
+   - `transcript-extract` -> `ytscriber extract`
+   - `transcript-download` -> `ytscriber download`
+   - `transcript-add` -> `ytscriber add`
+   - `transcript-summarize` -> `ytscriber summarize`
+4. Optionally set defaults with `ytscriber config --set defaults.delay=...`.
 
 ## Rate Limiting & Best Practices
 
@@ -280,7 +335,7 @@ pre-commit install
 pytest
 
 # Run with coverage
-pytest --cov=transcript_downloader
+pytest --cov=ytscriber
 
 # Run specific test file
 pytest tests/test_utils.py
@@ -302,7 +357,7 @@ mypy src
 ## Programmatic Usage
 
 ```python
-from transcript_downloader import TranscriptDownloader, ChannelExtractor
+from ytscriber import TranscriptDownloader, ChannelExtractor
 
 # Extract videos from a channel
 extractor = ChannelExtractor()

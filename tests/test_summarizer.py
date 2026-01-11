@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from transcript_downloader.summarizer import (
+from ytscriber.summarizer import (
     extract_video_id_from_filename,
     parse_frontmatter,
     has_summary,
@@ -203,7 +203,7 @@ class TestProcessTranscript:
         assert result.success is True
         assert "skipped" in result.error_message
 
-    @patch("transcript_downloader.summarizer.requests.post")
+    @patch("ytscriber.summarizer.requests.post")
     def test_successful_summary(
         self,
         mock_post: MagicMock,
@@ -226,7 +226,7 @@ class TestProcessTranscript:
         assert result.summary is not None
         assert has_summary(sample_transcript) is True
 
-    @patch("transcript_downloader.summarizer.requests.post")
+    @patch("ytscriber.summarizer.requests.post")
     def test_force_resummary(
         self,
         mock_post: MagicMock,
@@ -271,7 +271,7 @@ title: Empty Video
 class TestIntegration:
     """Integration tests for summarizer."""
 
-    @patch("transcript_downloader.summarizer.requests.post")
+    @patch("ytscriber.summarizer.requests.post")
     def test_process_folder(
         self,
         mock_post: MagicMock,
@@ -279,7 +279,7 @@ class TestIntegration:
         mock_openrouter_response: dict,
     ):
         """Test processing an entire folder."""
-        from transcript_downloader.summarizer import process_folder
+        from ytscriber.summarizer import process_folder
         
         mock_response = MagicMock()
         mock_response.json.return_value = mock_openrouter_response
@@ -296,7 +296,7 @@ class TestIntegration:
         assert progress.success == 1
         assert progress.errors == 0
 
-    @patch("transcript_downloader.summarizer.requests.post")
+    @patch("ytscriber.summarizer.requests.post")
     def test_csv_updated_after_summary(
         self,
         mock_post: MagicMock,
@@ -304,7 +304,7 @@ class TestIntegration:
         mock_openrouter_response: dict,
     ):
         """Test that CSV is updated after successful summary."""
-        from transcript_downloader.summarizer import process_folder
+        from ytscriber.summarizer import process_folder
         import csv
         
         mock_response = MagicMock()
@@ -332,9 +332,9 @@ class TestIntegration:
         mock_openrouter_response: dict,
     ):
         """Test that re-running skips already processed files."""
-        from transcript_downloader.summarizer import process_folder
+        from ytscriber.summarizer import process_folder
         
-        with patch("transcript_downloader.summarizer.requests.post") as mock_post:
+        with patch("ytscriber.summarizer.requests.post") as mock_post:
             mock_response = MagicMock()
             mock_response.json.return_value = mock_openrouter_response
             mock_response.raise_for_status.return_value = None
@@ -349,7 +349,7 @@ class TestIntegration:
             assert progress1.success == 1
             call_count_1 = mock_post.call_count
         
-        with patch("transcript_downloader.summarizer.requests.post") as mock_post2:
+        with patch("ytscriber.summarizer.requests.post") as mock_post2:
             # Second run - should skip
             progress2 = process_folder(
                 folder_path=sample_folder_structure,

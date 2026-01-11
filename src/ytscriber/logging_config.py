@@ -28,7 +28,7 @@ def setup_logging(
     Returns:
         Configured logger instance
     """
-    logger = logging.getLogger("transcript_downloader")
+    logger = logging.getLogger("ytscriber")
     logger.setLevel(level)
 
     # Clear existing handlers
@@ -71,8 +71,8 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
         Logger instance
     """
     if name:
-        return logging.getLogger(f"transcript_downloader.{name}")
-    return logging.getLogger("transcript_downloader")
+        return logging.getLogger(f"ytscriber.{name}")
+    return logging.getLogger("ytscriber")
 
 
 # Convenience functions for quick setup

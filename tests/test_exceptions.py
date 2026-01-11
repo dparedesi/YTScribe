@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from transcript_downloader.exceptions import (
+from ytscriber.exceptions import (
     ChannelExtractionError,
     CSVError,
     IPBlockedError,

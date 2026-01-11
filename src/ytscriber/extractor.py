@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from typing import Optional
 
-from transcript_downloader.exceptions import ChannelExtractionError
-from transcript_downloader.logging_config import get_logger
-from transcript_downloader.models import VideoMetadata
-from transcript_downloader.utils import ensure_videos_endpoint, normalize_channel_url
+from ytscriber.exceptions import ChannelExtractionError
+from ytscriber.logging_config import get_logger
+from ytscriber.models import VideoMetadata
+from ytscriber.utils import ensure_videos_endpoint, normalize_channel_url
 
 logger = get_logger("extractor")
 

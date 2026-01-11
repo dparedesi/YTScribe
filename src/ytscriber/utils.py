@@ -7,7 +7,7 @@ import re
 from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
-from transcript_downloader.exceptions import InvalidURLError
+from ytscriber.exceptions import InvalidURLError
 
 
 def extract_video_id(url: str) -> str:

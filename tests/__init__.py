@@ -1,1 +1,1 @@
-"""Tests for transcript_downloader package."""
+"""Tests for ytscriber package."""

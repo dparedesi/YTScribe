@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "conference-transcript-downloader"
-version = "1.0.0"
-description = "Download YouTube transcripts from conference channels for analysis and archival"
+name = "ytscriber"
+version = "1.2.0"
+description = "Download YouTube transcripts and manage channel archives"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
@@ -45,6 +45,7 @@ dependencies = [
     "tiktoken>=0.5.0",
     "pyyaml>=6.0.0",
     "requests>=2.31.0",
+    "platformdirs>=4.0.0",
 ]
 
 [project.optional-dependencies]
@@ -59,10 +60,7 @@ dev = [
 ]
 
 [project.scripts]
-transcript-download = "transcript_downloader.cli:download_main"
-transcript-extract = "transcript_downloader.cli:extract_main"
-transcript-add = "transcript_downloader.cli:add_main"
-transcript-summarize = "transcript_downloader.cli:summarize_main"
+ytscriber = "ytscriber.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/dparedesi/YTScribe"
@@ -115,7 +113,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["transcript_downloader"]
+known-first-party = ["ytscriber"]
 
 # MyPy configuration
 [tool.mypy]
@@ -150,7 +148,7 @@ markers = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["src/transcript_downloader"]
+source = ["src/ytscriber"]
 branch = true
 omit = ["*/tests/*", "*/__pycache__/*"]
 

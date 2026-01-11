@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from transcript_downloader.exceptions import InvalidURLError
-from transcript_downloader.utils import (
+from ytscriber.exceptions import InvalidURLError
+from ytscriber.utils import (
     escape_yaml_string,
     extract_video_id,
     format_duration,

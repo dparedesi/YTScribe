@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from transcript_downloader.models import (
+from ytscriber.models import (
     BatchProgress,
     DownloadStatus,
     TranscriptResult,

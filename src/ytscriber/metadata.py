@@ -7,8 +7,8 @@ import re
 from datetime import datetime
 from typing import Optional
 
-from transcript_downloader.logging_config import get_logger
-from transcript_downloader.models import VideoMetadata
+from ytscriber.logging_config import get_logger
+from ytscriber.models import VideoMetadata
 
 logger = get_logger("metadata")
 

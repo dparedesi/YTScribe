@@ -10,8 +10,11 @@ description: Manually add individual YouTube URLs to a custom collection CSV. Us
 ## Quick Start
 
 ```bash
-transcript-add <youtube-url> --csv data/<collection>/videos.csv
+transcript-add "<youtube-url>" --csv data/<collection>/videos.csv
 ```
+
+> [!IMPORTANT]
+> **Always quote URLs** to prevent shell interpretation of `?` and `&` characters.
 
 | Collection | CSV Path |
 |------------|----------|
@@ -35,7 +38,7 @@ Determine which collection the video belongs to:
 ### 2. Run the CLI Command
 
 ```bash
-transcript-add <youtube-url> --csv data/<collection>/videos.csv
+transcript-add "<youtube-url>" --csv data/<collection>/videos.csv
 ```
 
 > [!CAUTION]
@@ -45,13 +48,13 @@ transcript-add <youtube-url> --csv data/<collection>/videos.csv
 
 ```bash
 # Add to library-of-minds
-transcript-add https://www.youtube.com/watch?v=dQw4w9WgXcQ --csv data/library-of-minds/videos.csv
+transcript-add "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --csv data/library-of-minds/videos.csv
 
 # Add to random collection
-transcript-add https://www.youtube.com/watch?v=jNQXAC9IVRw --csv data/random/videos.csv
+transcript-add "https://www.youtube.com/watch?v=jNQXAC9IVRw" --csv data/random/videos.csv
 
 # Verbose output for debugging
-transcript-add https://www.youtube.com/watch?v=9bZkp7q19f0 --csv data/random/videos.csv -v
+transcript-add "https://www.youtube.com/watch?v=9bZkp7q19f0" --csv data/random/videos.csv -v
 ```
 
 ### 3. Verify the Output
@@ -86,10 +89,11 @@ transcript-download --csv data/<collection>/videos.csv --output-dir data/<collec
 
 ## Common Mistakes
 
-1. **Editing CSV directly** — Causes newline corruption and duplicate entries. Always use CLI.
-2. **Using short URLs** — `youtu.be/XXX` may not work. Use full `youtube.com/watch?v=XXX` format.
-3. **Wrong collection** — Double-check the collection name matches an existing folder.
-4. **Forgetting to download transcript** — Adding to CSV doesn't download content. Run `transcript-download` separately.
+1. **Unquoted URLs** — Shell interprets `?` as glob. Always wrap URLs in double quotes.
+2. **Editing CSV directly** — Causes newline corruption and duplicate entries. Always use CLI.
+3. **Using short URLs** — `youtu.be/XXX` may not work. Use full `youtube.com/watch?v=XXX` format.
+4. **Wrong collection** — Double-check the collection name matches an existing folder.
+5. **Forgetting to download transcript** — Adding to CSV doesn't download content. Run `transcript-download` separately.
 
 ---
 
