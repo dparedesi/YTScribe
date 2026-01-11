@@ -26,7 +26,7 @@ def extract_video_id(url: str) -> str:
     parsed_url = urlparse(url)
     video_id: Optional[str] = None
 
-    if parsed_url.hostname in ["www.youtube.com", "youtube.com"]:
+    if parsed_url.hostname in ["www.youtube.com", "youtube.com", "m.youtube.com"]:
         if parsed_url.path == "/watch":
             video_id = parse_qs(parsed_url.query).get("v", [None])[0]
         elif parsed_url.path.startswith("/embed/"):

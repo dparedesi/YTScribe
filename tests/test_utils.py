@@ -39,6 +39,11 @@ class TestExtractVideoId:
         url = "https://www.youtube.com/embed/dQw4w9WgXcQ"
         assert extract_video_id(url) == "dQw4w9WgXcQ"
 
+    def test_mobile_url(self):
+        """Test extracting ID from mobile m.youtube.com URL."""
+        url = "https://m.youtube.com/watch?v=dQw4w9WgXcQ"
+        assert extract_video_id(url) == "dQw4w9WgXcQ"
+
     def test_invalid_url_raises_error(self):
         """Test that invalid URL raises InvalidURLError."""
         with pytest.raises(InvalidURLError):

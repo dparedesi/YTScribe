@@ -2,6 +2,11 @@
 
 All notable changes to YTScriber will be documented in this file.
 
+## [1.2.2] - 2025-01-11
+
+### Fixed
+- Support for mobile YouTube URLs (`m.youtube.com`)
+
 ## [1.2.1] - 2025-01-11
 
 ### Fixed
