@@ -2,6 +2,11 @@
 
 All notable changes to YTScriber will be documented in this file.
 
+## [1.2.1] - 2025-01-11
+
+### Fixed
+- Version mismatch between pyproject.toml and __init__.py
+
 ## [1.2.0] - 2025-01-11
 
 ### Added
