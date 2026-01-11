@@ -10,16 +10,17 @@ description: Manually add individual YouTube URLs to a custom collection CSV. Us
 ## Quick Start
 
 ```bash
-transcript-add "<youtube-url>" --csv data/<collection>/videos.csv
+ytscriber add "<youtube-url>" --folder <collection>
 ```
 
 > [!IMPORTANT]
 > **Always quote URLs** to prevent shell interpretation of `?` and `&` characters.
 
-| Collection | CSV Path |
-|------------|----------|
-| library-of-minds | `data/library-of-minds/videos.csv` |
-| random | `data/random/videos.csv` |
+| Collection | Description |
+|------------|-------------|
+| library-of-minds | Thought leaders, interviews, educational content |
+| random | Miscellaneous, one-off interesting content |
+| (custom) | Any folder name you specify |
 
 ---
 
@@ -38,31 +39,31 @@ Determine which collection the video belongs to:
 ### 2. Run the CLI Command
 
 ```bash
-transcript-add "<youtube-url>" --csv data/<collection>/videos.csv
+ytscriber add "<youtube-url>" --folder <collection>
 ```
 
 > [!CAUTION]
-> **NEVER manually edit CSV files** to add videos. Always use `transcript-add` to ensure proper formatting and duplicate detection.
+> **NEVER manually edit CSV files** to add videos. Always use `ytscriber add` to ensure proper formatting and duplicate detection.
 
 **Examples:**
 
 ```bash
 # Add to library-of-minds
-transcript-add "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --csv data/library-of-minds/videos.csv
+ytscriber add "https://www.youtube.com/watch?v=dQw4w9WgXcQ" --folder library-of-minds
 
 # Add to random collection
-transcript-add "https://www.youtube.com/watch?v=jNQXAC9IVRw" --csv data/random/videos.csv
+ytscriber add "https://www.youtube.com/watch?v=jNQXAC9IVRw" --folder random
 
 # Verbose output for debugging
-transcript-add "https://www.youtube.com/watch?v=9bZkp7q19f0" --csv data/random/videos.csv -v
+ytscriber add "https://www.youtube.com/watch?v=9bZkp7q19f0" --folder random -v
 ```
 
 ### 3. Verify the Output
 
 | Output | Meaning |
 |--------|---------|
-| `✓ Added video XXX to ...` | Success — video was added |
-| `⊘ Video XXX already exists in ...` | Duplicate — no action needed |
+| `Added video XXX to ...` | Success — video was added |
+| `Video XXX already exists in ...` | Duplicate — no action needed |
 | Error message | See Troubleshooting below |
 
 ### 4. Offer Transcript Download (Optional)
@@ -70,7 +71,7 @@ transcript-add "https://www.youtube.com/watch?v=9bZkp7q19f0" --csv data/random/v
 After adding, ask the user if they want to download the transcript:
 
 ```bash
-transcript-download --csv data/<collection>/videos.csv --output-dir data/<collection>/transcripts
+ytscriber download --folder <collection>
 ```
 
 ---
@@ -79,10 +80,9 @@ transcript-download --csv data/<collection>/videos.csv --output-dir data/<collec
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| `command not found: transcript-add` | CLI not installed | Run `pip install -e .` from project root |
+| `command not found: ytscriber` | CLI not installed | Run `pip install -e .` from project root |
 | `Invalid YouTube URL` | Malformed URL | Use full URL: `https://www.youtube.com/watch?v=VIDEO_ID` |
-| `Permission denied` | File permissions | Check write access to `data/` directory |
-| `CSV file not found` | Collection doesn't exist | Create directory first: `mkdir -p data/<collection>` |
+| `Permission denied` | File permissions | Check write access to data directory |
 | Video not appearing in CSV | Silent failure | Run with `-v` flag to see debug output |
 
 ---
@@ -91,9 +91,9 @@ transcript-download --csv data/<collection>/videos.csv --output-dir data/<collec
 
 1. **Unquoted URLs** — Shell interprets `?` as glob. Always wrap URLs in double quotes.
 2. **Editing CSV directly** — Causes newline corruption and duplicate entries. Always use CLI.
-3. **Using short URLs** — `youtu.be/XXX` may not work. Use full `youtube.com/watch?v=XXX` format.
-4. **Wrong collection** — Double-check the collection name matches an existing folder.
-5. **Forgetting to download transcript** — Adding to CSV doesn't download content. Run `transcript-download` separately.
+3. **Using short URLs** — `youtu.be/XXX` works, but full `youtube.com/watch?v=XXX` is preferred.
+4. **Wrong collection** — Double-check the collection name matches an existing folder or will be created.
+5. **Forgetting to download transcript** — Adding to CSV doesn't download content. Run `ytscriber download` separately.
 
 ---
 
@@ -104,6 +104,7 @@ transcript-download --csv data/<collection>/videos.csv --output-dir data/<collec
 - URL normalization to canonical format
 - Proper CSV escaping and formatting
 - Header creation for new CSV files
+- Folder creation if it doesn't exist
 
 **Metadata populated during transcript download:**
 - Video title

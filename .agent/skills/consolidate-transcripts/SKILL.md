@@ -13,7 +13,10 @@ description: Consolidate transcripts from a channel into a single file, sorted b
 python scripts/consolidate_transcripts.py <channel_name>
 ```
 
-Output: `data/<channel_name>/<channel_name>-consolidated.md`
+Output: `~/Documents/YTScriber/<channel_name>/<channel_name>-consolidated.md`
+
+> [!NOTE]
+> This feature is currently a standalone script. A `ytscriber consolidate` CLI command is planned for a future release.
 
 ---
 
@@ -23,7 +26,7 @@ Output: `data/<channel_name>/<channel_name>-consolidated.md`
 
 List available channels:
 ```bash
-ls data/
+ls ~/Documents/YTScriber/
 ```
 
 ### 2. Choose Token Limit
@@ -61,7 +64,7 @@ python scripts/consolidate_transcripts.py dwarkesh-patel --verbose
 
 Check the consolidated file was created:
 ```bash
-ls -la data/<channel_name>/*-consolidated.md
+ls -la ~/Documents/YTScriber/<channel_name>/*-consolidated.md
 ```
 
 ---
@@ -70,7 +73,7 @@ ls -la data/<channel_name>/*-consolidated.md
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `channel_name` | Folder name in `data/` | Required |
+| `channel_name` | Folder name in data directory | Required |
 | `--limit, -l` | Maximum tokens to include | 800000 |
 | `--verbose, -v` | Show detailed file list | False |
 
@@ -91,8 +94,8 @@ The consolidated file includes:
 | Problem | Cause | Solution |
 |---------|-------|----------|
 | `ModuleNotFoundError: tiktoken` | tiktoken not installed | `pip install tiktoken` |
-| `No transcripts found` | Empty transcripts folder | Run `transcript-download` first |
-| `FileNotFoundError` | Channel doesn't exist | Check `ls data/` for valid names |
+| `No transcripts found` | Empty transcripts folder | Run `ytscriber download` first |
+| `FileNotFoundError` | Channel doesn't exist | Check `ls ~/Documents/YTScriber/` for valid names |
 | Output file is small | Few transcripts available | Use `--verbose` to see what was included |
 | Token count seems wrong | Old tiktoken version | `pip install --upgrade tiktoken` |
 
@@ -100,8 +103,8 @@ The consolidated file includes:
 
 ## Common Mistakes
 
-1. **Wrong channel name** — Use the folder name exactly as shown in `ls data/`, not the YouTube channel name.
-2. **Forgetting to download transcripts first** — Consolidation requires transcripts to exist. Run `/download-transcripts` first.
+1. **Wrong channel name** — Use the folder name exactly as shown in `ls ~/Documents/YTScriber/`, not the YouTube channel name.
+2. **Forgetting to download transcripts first** — Consolidation requires transcripts to exist. Run `ytscriber download` first.
 3. **Using too high a limit** — If you exceed your LLM's context, you'll get truncation errors. Use the limit guide above.
 4. **Expecting real-time updates** — Re-run consolidation after downloading new transcripts.
 

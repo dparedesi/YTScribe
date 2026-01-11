@@ -11,13 +11,13 @@ description: Generate AI summaries for downloaded YouTube transcripts. Use when 
 
 ```bash
 # Summarize a specific folder
-transcript-summarize OpenAI
+ytscriber summarize <folder-name>
 
 # Summarize ALL folders
-transcript-summarize --all
+ytscriber summarize --all
 
 # Preview what would be summarized
-transcript-summarize --all --dry-run
+ytscriber summarize --all --dry-run
 ```
 
 ---
@@ -26,11 +26,10 @@ transcript-summarize --all --dry-run
 
 ### 1. Verification & Mode Selection
 
-Check for OpenRouter API key securely (do not print it):
+Check for OpenRouter API key:
 
 ```bash
-# Check if .env contains the key definition (silently)
-if [ -f .env ] && grep -q "^[[:space:]]*OPENROUTER_API_KEY=" .env; then echo "✅ Key configured in .env"; else echo "❌ Key missing"; fi
+echo $OPENROUTER_API_KEY | head -c 10
 ```
 
 **Decision:**
@@ -43,9 +42,9 @@ if [ -f .env ] && grep -q "^[[:space:]]*OPENROUTER_API_KEY=" .env; then echo "�
 
 Use the CLI tool to process folders efficiently.
 
-**1. Load Environment & Run:**
+**1. Run:**
 ```bash
-export $(grep -v '^#' .env | xargs) && transcript-summarize <FOLDER_NAME>
+ytscriber summarize <FOLDER_NAME>
 ```
 
 **2. Verify & Interpret Output:**
@@ -70,103 +69,60 @@ Summarization Complete!
 
 ### 2B. Agentic Fallback Mode (No API Key)
 
-If the user has no API key, **YOU** are the summarizer. 
+If the user has no API key, **YOU** are the summarizer.
 
 **Constraints:**
 - Process small batches (1-5 files) to manage your context window.
-- **DO NOT** use the `transcript-summarize` command (it will fail).
+- **DO NOT** use the `ytscriber summarize` command (it will fail).
 - You must read, summarize, and update the files using your tools.
 
 **Workflow:**
 
 1. **List Files:**
    ```bash
-   ls data/<FOLDER>/transcripts/*.md
+   ls ~/Documents/YTScriber/<FOLDER>/transcripts/*.md
    ```
 
 2. **Notify User (Polite Fallback):**
    - Inform the user: "I see the API key is missing. For future reference, you can set this up following the instructions in `README.md` to enable faster automated summarization. For now, I will proceed with manual summarization of this batch."
 
 3. **Process Loop (Iterate through files):**
-   - **Read** the transcript file: `view_file <path>`
+   - **Read** the transcript file
    - **Generate Summary** (Internal Monologue):
      - Target ~500 words.
      - **Format:** Single continuous paragraph (no line breaks, no bullets).
      - **Style:** Neutral, informative, dense. No "This video is about..." intro.
    - **Update File**:
      - Insert the summary into the frontmatter `summary:` field.
-     - Use `replace_file_content` to add the summary block.
 
-     *Example Code Edit:*
-     ```markdown
-     summary: |
-       Here is the generated summary text...
-     ---
-     ```
-
-**3. Ask to Continue:**
+**4. Ask to Continue:**
 After processing a batch, ask the user if they want you to continue with the next batch.
 
-### 2. Identify Target Folders
+### 3. Identify Target Folders
 
 Determine scope based on user request:
 
 | User Request | Command |
 |--------------|---------|
-| Specific channel | `transcript-summarize <FOLDER_NAME>` |
-| All channels | `transcript-summarize --all` |
-| Preview only | `transcript-summarize --all --dry-run` |
+| Specific channel | `ytscriber summarize <FOLDER_NAME>` |
+| All channels | `ytscriber summarize --all` |
+| Preview only | `ytscriber summarize --all --dry-run` |
 
 > [!TIP]
 > Always run `--dry-run` first when processing many folders. This shows exactly how many transcripts need summaries.
-
-### 3. Execute Summarization
-
-Run the command with environment variables loaded:
-
-```bash
-# Load .env and run summarization
-export $(grep -v '^#' .env | xargs) && transcript-summarize <FOLDER_NAME>
-
-# Example: Summarize the a16z folder
-export $(grep -v '^#' .env | xargs) && transcript-summarize a16z
-```
-
-**Expected output:**
-```
-Processing folder: a16z
-Found 42 transcripts, 38 need summaries
-Summarizing: how_to_build_a_startup.txt (1/38)
-[========================================] 38/38 complete
-Summary: Processed 38 files, 0 errors
-```
-
-### 4. Verify Results
-
-Check that summaries were added:
-
-```bash
-# View a summarized transcript's frontmatter
-head -30 data/a16z/how_to_build_a_startup.txt
-```
-
-**Success criteria:**
-- `summary:` field exists in frontmatter
-- Summary is ~500 words (configurable via `--max-words`)
-- No API errors in output
 
 ---
 
 ## Command Reference
 
 ```bash
-transcript-summarize [FOLDER] [OPTIONS]
+ytscriber summarize [FOLDER] [OPTIONS]
 ```
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `FOLDER` | Specific folder in `data/` to process | (Required unless `--all`) |
-| `--all` | Process ALL folders in `data/` | False |
+| `FOLDER` | Specific folder to process | (Required unless `--all`) |
+| `--all` | Process ALL folders | False |
 | `--dry-run` | Show what would happen without changes | False |
 | `--force` | Re-summarize files that already have summaries | False |
 | `--delay` | Seconds between API requests (min: 4s) | 4.0 |
@@ -182,25 +138,25 @@ transcript-summarize [FOLDER] [OPTIONS]
 
 **Summarize a single channel:**
 ```bash
-export $(grep -v '^#' .env | xargs) && transcript-summarize OpenAI
-# Processes only data/OpenAI/transcripts/*.md files
+ytscriber summarize OpenAI
+# Processes only ~/Documents/YTScriber/OpenAI/transcripts/*.md files
 ```
 
 **Dry run to preview work:**
 ```bash
-export $(grep -v '^#' .env | xargs) && transcript-summarize --all --dry-run
+ytscriber summarize --all --dry-run
 # Output: "Would process 156 files across 12 folders"
 ```
 
 **Force re-summarize with custom model:**
 ```bash
-export $(grep -v '^#' .env | xargs) && transcript-summarize a16z --force --model moonshotai/kimi-k2:free
+ytscriber summarize a16z --force --model moonshotai/kimi-k2:free
 # Overwrites existing summaries with fresh ones
 ```
 
 **Slower rate for unstable connections:**
 ```bash
-export $(grep -v '^#' .env | xargs) && transcript-summarize LexFridman --delay 10
+ytscriber summarize LexFridman --delay 10
 # 10 second delay between API calls
 ```
 
@@ -213,7 +169,6 @@ export $(grep -v '^#' .env | xargs) && transcript-summarize LexFridman --delay 1
 | Running without `--dry-run` first | May process hundreds of files unexpectedly | Always preview with `--dry-run` when using `--all` |
 | Using `--force` without reason | Wastes API calls on already-summarized files | Only use `--force` when changing models or max-words |
 | Setting `--delay` below 4s | Will trigger rate limits | Keep delay at 4s minimum |
-| Running from wrong directory | Command won't find `data/` folder | Always run from project root (where `pyproject.toml` is) |
 
 ---
 
@@ -221,9 +176,9 @@ export $(grep -v '^#' .env | xargs) && transcript-summarize LexFridman --delay 1
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
-| `OPENROUTER_API_KEY not set` | `.env` file exists but variables not exported to shell | Use `export $(grep -v '^#' .env | xargs) && transcript-summarize ...` |
+| `OPENROUTER_API_KEY not set` | Environment variable not exported | Export it: `export OPENROUTER_API_KEY=sk-or-...` |
 | `Rate limited (429)` | Too many requests too fast | Script auto-retries with backoff. If persistent, increase `--delay` to 8-10s |
-| `No folders found in data/` | Running from wrong directory or empty data folder | `cd` to project root; verify `data/` contains channel folders |
+| `No folders found` | Running from wrong directory or empty data folder | Verify `~/Documents/YTScriber/` contains channel folders |
 | `Transcript too short` (skipped) | Transcript under 100 words | Expected behavior; very short transcripts skip summarization |
 | `Model not available` | Model ID typo or model deprecated | Check OpenRouter docs for current model IDs |
 | Summary in wrong language | Model defaulted to source language | Most free models default to English; use a multilingual model if needed |

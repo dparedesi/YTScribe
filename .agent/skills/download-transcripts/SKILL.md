@@ -11,10 +11,10 @@ description: Download YouTube transcripts for videos tracked in a CSV file. Use 
 
 ```bash
 # Standard usage (recommended)
-transcript-download --csv data/channel-name/videos.csv --output-dir data/channel-name/transcripts
+ytscriber download --folder <channel-name> --delay 60
 
-# Single video
-transcript-download https://www.youtube.com/watch?v=VIDEO_ID --output transcript.md
+# Single video (adds to default collection and downloads)
+ytscriber add "https://www.youtube.com/watch?v=VIDEO_ID" --folder random
 ```
 
 ---
@@ -25,11 +25,11 @@ transcript-download https://www.youtube.com/watch?v=VIDEO_ID --output transcript
 
 Ensure you have a CSV file with video URLs:
 - Created by `extract-videos` skill, OR
-- Manually curated with `video_url` column
+- Manually curated with `url` column
 
 ```bash
 # Check CSV exists and has videos
-head -5 data/channel-name/videos.csv
+head -5 ~/Documents/YTScriber/<channel-name>/videos.csv
 ```
 
 > [!TIP]
@@ -38,18 +38,13 @@ head -5 data/channel-name/videos.csv
 ### 2. Run Download Command
 
 ```bash
-transcript-download \
-  --csv data/<folder-name>/videos.csv \
-  --output-dir data/<folder-name>/transcripts \
-  --delay 60
+ytscriber download --folder <folder-name> --delay 60
 ```
 
 | Option | Description | Default | Notes |
 |--------|-------------|---------|-------|
-| `--csv` | Input CSV file with video URLs | Required | Must have `video_url` column |
-| `--output-dir` | Directory for transcript files | `outputs` | Created if missing |
+| `--folder` | Folder name containing videos.csv | Required | Uses platformdirs data path |
 | `--delay` | Seconds between requests | 60 | Minimum 30, recommended 60+ |
-| `--languages, -l` | Language codes to try | `en en-US en-GB` | In priority order |
 | `--verbose, -v` | Enable verbose output | False | Shows download progress |
 
 > [!CAUTION]
@@ -61,15 +56,15 @@ After the command completes:
 
 ```bash
 # Check how many transcripts downloaded
-ls -la data/<folder-name>/transcripts/*.md | wc -l
+ls -la ~/Documents/YTScriber/<folder-name>/transcripts/*.md | wc -l
 
 # Verify CSV status updated
-grep -c "True" data/<folder-name>/videos.csv
+grep -c "success" ~/Documents/YTScriber/<folder-name>/videos.csv
 ```
 
 The command automatically:
 - Downloads transcripts as markdown with YAML frontmatter
-- Updates CSV `transcript_downloaded` column with True/False
+- Updates CSV `transcript_downloaded` column with success/error/empty
 - Skips already-downloaded videos on re-run
 
 ---
@@ -87,10 +82,11 @@ author: Jane Smith
 published_date: 2025-03-15
 length_minutes: 42.5
 views: 15234
+description: "Video description..."
+is_generated: True
 ---
 
-[00:00] Welcome to today's talk on building resilient microservices...
-[00:15] We'll cover three main topics: circuit breakers, retry patterns...
+[Transcript text as continuous paragraph]
 ```
 
 ---
@@ -100,35 +96,13 @@ views: 15234
 ### Overnight Batch Processing
 ```bash
 # Large channel - run overnight with safe delay
-transcript-download \
-  --csv data/aws-reinvent-2025/videos.csv \
-  --output-dir data/aws-reinvent-2025/transcripts \
-  --delay 90 \
-  --verbose
+ytscriber download --folder aws-reinvent-2025 --delay 90 --verbose
 ```
 
 ### Conference Playlist
 ```bash
 # Smaller collection - minimum safe delay
-transcript-download \
-  --csv data/pycon-2024/videos.csv \
-  --output-dir data/pycon-2024/transcripts \
-  --delay 30
-```
-
-### Non-English Content
-```bash
-# Spanish content with fallback to auto-generated
-transcript-download \
-  --csv data/spanish-tech/videos.csv \
-  --output-dir data/spanish-tech/transcripts \
-  --languages es es-MX es-ES auto
-```
-
-### Single Video Mode
-```bash
-# Quick single transcript
-transcript-download https://www.youtube.com/watch?v=dQw4w9WgXcQ --output talk.md
+ytscriber download --folder pycon-2024 --delay 30
 ```
 
 ---
@@ -137,11 +111,11 @@ transcript-download https://www.youtube.com/watch?v=dQw4w9WgXcQ --output talk.md
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| "No transcript found" | Video lacks captions in specified languages | Try `--languages en en-US auto` to include auto-generated captions |
+| "No transcript found" | Video lacks captions | Some videos have no captions available |
 | IP blocked / 403 errors | Too many requests too quickly | Wait 30-60 minutes, then retry with `--delay 120` |
 | Script interrupted mid-run | Network issue or Ctrl+C | Re-run the exact same command; it skips completed videos |
 | Empty transcript files | Auto-captions unavailable or video is live | Check if video has captions on YouTube; skip if not |
-| "CSV file not found" | Wrong path or file doesn't exist | Verify path with `ls data/<folder-name>/videos.csv` |
+| "Folder not found" | Wrong folder name | Verify folder with `ls ~/Documents/YTScriber/` |
 | Slow downloads | Rate limiting working correctly | This is expected; 100 videos at 60s delay = ~2 hours |
 
 ---
@@ -154,17 +128,13 @@ transcript-download https://www.youtube.com/watch?v=dQw4w9WgXcQ --output talk.md
 
 3. **Not using resume capability** - If interrupted, don't start over. Re-run the same command to resume from where you left off.
 
-4. **Wrong language codes** - Language codes are specific (e.g., `en-US` not `english`). Check YouTube's language for the video.
-
-5. **Forgetting `auto` in languages** - Many videos only have auto-generated captions. Add `auto` to your language list as a fallback.
-
 ---
 
 ## Quality Checklist
 
 Before running:
-- [ ] CSV file exists and has `video_url` column
-- [ ] Output directory path is correct
+- [ ] CSV file exists and has `url` column
+- [ ] Folder name is correct
 - [ ] Delay is 30+ seconds (60+ recommended)
 - [ ] Sufficient time allocated (1 min per video minimum)
 

@@ -303,20 +303,28 @@ def process_transcript(
             error_message="dry-run (would process)",
         )
     
+    # Parse file content before try block so variables are available in except
     try:
         content = file_path.read_text(encoding="utf-8")
         frontmatter, body = parse_frontmatter(content)
-        
-        if not body.strip():
-            return SummarizeResult(
-                video_id=video_id,
-                success=False,
-                error_message="empty transcript",
-            )
-        
-        title = frontmatter.get("title", "Unknown Title")
-        author = frontmatter.get("author", "Unknown")
-        
+    except Exception as read_error:
+        return SummarizeResult(
+            video_id=video_id,
+            success=False,
+            error_message=f"failed to read file: {read_error}",
+        )
+
+    if not body.strip():
+        return SummarizeResult(
+            video_id=video_id,
+            success=False,
+            error_message="empty transcript",
+        )
+
+    title = frontmatter.get("title", "Unknown Title")
+    author = frontmatter.get("author", "Unknown")
+
+    try:
         # Call API
         summary = summarize_transcript(
             content=body,

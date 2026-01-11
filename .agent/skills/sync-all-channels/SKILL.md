@@ -10,31 +10,20 @@ description: Extract videos from all enabled YouTube channels in channels.yaml. 
 ## Quick Start
 
 ```bash
-# 1. Ensure yq is installed
-brew install yq
-
-# 2. Run the sync
-./scripts/sync_all_channels.sh
+# Run the unified CLI command
+ytscriber sync-all
 ```
 
 > [!TIP]
-> Run this before `download-all-transcripts` to ensure video lists are current.
+> Run this before `ytscriber download-all` to ensure video lists are current.
 
 ---
 
 ## Workflow
 
-### 1. Verify Prerequisites
+### 1. Review Channel Configuration
 
-Check that `yq` is installed:
-
-```bash
-which yq || echo "Install with: brew install yq"
-```
-
-### 2. Review Channel Configuration
-
-Open `data/channels.yaml` and verify:
+Check `~/Documents/YTScriber/channels.yaml` and verify:
 - All desired channels have `enabled: true`
 - Video counts are appropriate (20-100 typical)
 - URLs point to channel video pages
@@ -45,34 +34,38 @@ channels:
     url: https://www.youtube.com/@OpenAI/videos
     count: 50
     enabled: true
+
+collections:
+  - library-of-minds
+  - random
 ```
 
 > [!CAUTION]
 > Setting `count` above 200 significantly increases sync time and may trigger rate limiting.
 
-### 3. Execute the Sync
+### 2. Execute the Sync
 
 ```bash
-./scripts/sync_all_channels.sh
+ytscriber sync-all
 ```
 
-The script will:
-1. Parse `data/channels.yaml`
+The command will:
+1. Parse `channels.yaml`
 2. Skip channels with `enabled: false`
 3. Extract videos for each enabled channel
-4. Wait 10 seconds between channels (rate limiting)
+4. Wait between channels (rate limiting)
 5. Report completion and next steps
 
-### 4. Verify Results
+### 3. Verify Results
 
 After completion, check:
-- Each channel folder exists in `data/`
+- Each channel folder exists
 - Each folder contains `videos.csv` with entries
 - No persistent errors in output
 
 ```bash
 # Quick verification
-ls -la data/*/videos.csv | head -10
+ls -la ~/Documents/YTScriber/*/videos.csv | head -10
 ```
 
 ---
@@ -81,7 +74,7 @@ ls -la data/*/videos.csv | head -10
 
 ### Adding a New Channel
 
-1. Add entry to `data/channels.yaml`:
+1. Add entry to `channels.yaml`:
    ```yaml
    - folder: new-channel-name
      url: https://www.youtube.com/@ChannelName/videos
@@ -90,6 +83,14 @@ ls -la data/*/videos.csv | head -10
    ```
 
 2. Run sync - folder is created automatically
+
+Or use the extract command with `--register-channel`:
+```bash
+ytscriber extract https://www.youtube.com/@ChannelName/videos \
+  --count 50 \
+  --folder new-channel-name \
+  --register-channel
+```
 
 > [!WARNING]
 > Folder names should use lowercase with hyphens (e.g., `my-channel`). Avoid spaces or special characters.
@@ -113,8 +114,7 @@ Set `enabled: false` - the channel will be skipped during sync but data is prese
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| `yq: command not found` | yq not installed | Run `brew install yq` |
-| `Config file not found` | Running from wrong directory | Run from repo root: `./scripts/sync_all_channels.sh` |
+| `Config file not found` | Running from wrong directory or channels.yaml missing | Ensure `~/Documents/YTScriber/channels.yaml` exists |
 | `Failed to sync [channel]` | Network issue or invalid URL | Check URL is accessible in browser, retry |
 | Sync takes forever | Too many channels or high counts | Reduce counts or disable some channels |
 | Empty videos.csv | Channel has no public videos or URL is wrong | Verify URL ends in `/videos` |
@@ -125,10 +125,8 @@ Set `enabled: false` - the channel will be skipped during sync but data is prese
 ## Common Mistakes
 
 1. **Wrong URL format** - Use `https://www.youtube.com/@ChannelName/videos` not `/channel/` or `/c/` URLs
-2. **Running from wrong directory** - Must run from repo root, not from `scripts/`
-3. **Forgetting to enable** - New channels default to `enabled: false` in templates
-4. **Excessive counts** - Starting with `count: 500` causes long waits; start with 50
-5. **Missing yq** - The script fails immediately without yq; install before first run
+2. **Forgetting to enable** - New channels default to `enabled: false` in templates
+3. **Excessive counts** - Starting with `count: 500` causes long waits; start with 50
 
 ---
 
@@ -138,7 +136,7 @@ After syncing channels:
 
 ```bash
 # Download transcripts for all synced videos
-./scripts/download_all_transcripts.sh
+ytscriber download-all
 ```
 
 ---
@@ -146,23 +144,20 @@ After syncing channels:
 ## Quality Checklist
 
 Before running sync:
-- [ ] `yq` is installed (`which yq`)
-- [ ] Running from repository root
-- [ ] `data/channels.yaml` exists and is valid YAML
+- [ ] `channels.yaml` exists and is valid YAML
 - [ ] At least one channel has `enabled: true`
 
 After sync completes:
 - [ ] No persistent errors in output (warnings OK)
-- [ ] Each enabled channel has `data/[folder]/videos.csv`
+- [ ] Each enabled channel has `videos.csv`
 - [ ] CSV files contain video entries
 
 ---
 
 ## Rate Limiting Details
 
-- **10 second delay** between channels (built into script)
 - **Sequential processing** - one channel at a time
 - **Graceful failure** - if one channel fails, others continue
 
 > [!TIP]
-> For overnight batch operations, run sync first, then download-all-transcripts. This sequence ensures video lists are current before downloading.
+> For overnight batch operations, run sync first, then download-all. This sequence ensures video lists are current before downloading.

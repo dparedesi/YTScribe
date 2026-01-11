@@ -11,15 +11,13 @@ description: Extract video metadata from a YouTube channel and save to CSV for t
 
 ```bash
 # Recurring channel (adds to channels.yaml for future syncs)
-mkdir -p data/<channel-name>
-transcript-extract https://www.youtube.com/@ChannelName/videos \
+ytscriber extract https://www.youtube.com/@ChannelName/videos \
   --count 50 \
-  --append-csv data/<channel-name>/videos.csv \
+  --folder <channel-name> \
   --register-channel
 
 # One-time extraction (conferences, playlists)
-mkdir -p data/<name>
-transcript-extract <youtube_url> --count 100 --append-csv data/<name>/videos.csv
+ytscriber extract <youtube_url> --count 100 --folder <name>
 ```
 
 ---
@@ -36,25 +34,14 @@ transcript-extract <youtube_url> --count 100 --append-csv data/<name>/videos.csv
 | Testing/exploration | No | 5-10 |
 
 > [!TIP]
-> Use `--register-channel` only for channels you want to sync regularly. It adds the channel to `data/channels.yaml` for the `sync-all-channels` skill.
+> Use `--register-channel` only for channels you want to sync regularly. It adds the channel to `channels.yaml` for the `sync-all-channels` skill.
 
-### 2. Create Directory Structure
-
-```bash
-mkdir -p data/<channel-name>
-```
-
-**Naming conventions:**
-- Use lowercase with hyphens: `aws-reinvent-2025`, `veritasium`, `lexfridman`
-- Match the YouTube handle when possible: `@veritasium` becomes `veritasium`
-- For conferences, include year: `pycon-2025`, `kubecon-eu-2024`
-
-### 3. Run Extraction Command
+### 2. Run Extraction Command
 
 ```bash
-transcript-extract <channel_url> \
+ytscriber extract <channel_url> \
   --count <N> \
-  --append-csv data/<channel-name>/videos.csv \
+  --folder <channel-name> \
   [--register-channel]
 ```
 
@@ -63,22 +50,21 @@ transcript-extract <channel_url> \
 | Option | Description | Default | When to Use |
 |--------|-------------|---------|-------------|
 | `--count, -n` | Number of latest videos | 10 | Always specify explicitly |
-| `--append-csv` | CSV file path | Required | Always use for tracking |
+| `--folder` | Folder name for this channel | Required | Always use for tracking |
 | `--register-channel` | Add to `channels.yaml` | False | Recurring channels only |
-| `--output, -o` | Save video IDs to text file | - | Rarely needed |
 | `--verbose, -v` | Enable verbose output | False | Debugging |
 
 > [!CAUTION]
 > The `--count` in the command sets the INITIAL extraction count. The `count` in `channels.yaml` (set by `--register-channel`) controls FUTURE sync counts. These are independent values.
 
-### 4. Verify Extraction
+### 3. Verify Extraction
 
 ```bash
 # Check CSV was created with expected columns
-head -3 data/<channel-name>/videos.csv
+head -3 ~/Documents/YTScriber/<channel-name>/videos.csv
 
 # Count extracted videos
-wc -l data/<channel-name>/videos.csv
+wc -l ~/Documents/YTScriber/<channel-name>/videos.csv
 ```
 
 **Expected CSV columns:**
@@ -86,7 +72,8 @@ wc -l data/<channel-name>/videos.csv
 - `title` - Video title
 - `duration_minutes` - Video length
 - `view_count` - Number of views
-- `description` - Video description
+- `description` - Video description (truncated to 500 chars)
+- `published_date` - Video publish date
 - `transcript_downloaded` - Tracking field (initially empty)
 - `summary_done` - Tracking field (initially empty)
 
@@ -97,13 +84,9 @@ wc -l data/<channel-name>/videos.csv
 ### Adding a New Channel for Regular Syncing
 
 ```bash
-# 1. Create directory
-mkdir -p data/veritasium
-
-# 2. Extract initial batch with registration
-transcript-extract https://www.youtube.com/@veritasium/videos \
+ytscriber extract https://www.youtube.com/@veritasium/videos \
   --count 100 \
-  --append-csv data/veritasium/videos.csv \
+  --folder veritasium \
   --register-channel
 
 # Result: 100 videos extracted, channel added to channels.yaml with count: 100
@@ -113,10 +96,9 @@ transcript-extract https://www.youtube.com/@veritasium/videos \
 
 ```bash
 # Extract AWS re:Invent talks (won't be synced later)
-mkdir -p data/aws-reinvent-2025
-transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
+ytscriber extract https://www.youtube.com/@AWSEventsChannel/videos \
   --count 200 \
-  --append-csv data/aws-reinvent-2025/videos.csv
+  --folder aws-reinvent-2025
 
 # No --register-channel = not added to channels.yaml
 ```
@@ -125,9 +107,9 @@ transcript-extract https://www.youtube.com/@AWSEventsChannel/videos \
 
 ```bash
 # Running again only adds NEW videos (duplicates auto-skipped)
-transcript-extract https://www.youtube.com/@veritasium/videos \
+ytscriber extract https://www.youtube.com/@veritasium/videos \
   --count 20 \
-  --append-csv data/veritasium/videos.csv
+  --folder veritasium
 
 # Safe to run multiple times - existing videos preserved
 ```
@@ -139,11 +121,10 @@ transcript-extract https://www.youtube.com/@veritasium/videos \
 | Problem | Cause | Solution |
 |---------|-------|----------|
 | "No videos found" | Wrong URL format | Use `https://www.youtube.com/@ChannelName/videos` (include `/videos`) |
-| CSV not created | Directory doesn't exist | Run `mkdir -p data/<name>` first |
+| CSV not created | Folder doesn't exist | The CLI creates the folder automatically |
 | Duplicate videos appearing | Running with different URL variants | Always use canonical `@handle/videos` format |
 | Channel not in `channels.yaml` | Forgot `--register-channel` | Re-run with flag, or manually add to YAML |
 | Wrong video count in `channels.yaml` | Flag uses command's `--count` value | Edit `channels.yaml` manually to adjust future sync count |
-| Permission denied | File locked or read-only | Close any apps using the CSV |
 
 ---
 
@@ -161,11 +142,7 @@ transcript-extract https://www.youtube.com/@veritasium/videos \
    - This skill ONLY extracts video metadata to CSV
    - Use `download-transcripts` skill to actually fetch transcripts
 
-4. **Not creating directory first**
-   - The `--append-csv` path requires parent directory to exist
-   - Always run `mkdir -p data/<name>` before extraction
-
-5. **Confusing command `--count` with `channels.yaml` count**
+4. **Confusing command `--count` with `channels.yaml` count**
    - Command `--count`: How many videos to extract NOW
    - `channels.yaml` `count`: How many videos for FUTURE syncs
    - Initial extraction might be 200, but sync count might be 30
@@ -176,7 +153,6 @@ transcript-extract https://www.youtube.com/@veritasium/videos \
 
 Before considering extraction complete:
 
-- [ ] Directory created in `data/` with proper naming
 - [ ] CSV exists with expected video count
 - [ ] CSV has all required columns (url, title, duration_minutes, etc.)
 - [ ] If recurring channel: entry exists in `channels.yaml`
