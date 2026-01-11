@@ -11,6 +11,7 @@ from platformdirs import user_config_dir, user_documents_path
 APP_NAME = "ytscriber"
 DOCUMENTS_DATA_DIR = "YTScriber"
 LINUX_DATA_DIR = "ytscriber"
+DEFAULT_COLLECTION = "ad-hoc-downloads"
 
 
 def get_data_dir() -> Path:
@@ -30,6 +31,11 @@ def get_channels_file() -> Path:
     return get_data_dir() / "channels.yaml"
 
 
+def get_default_collection_dir() -> Path:
+    """Return the default collection directory for ad-hoc downloads."""
+    return get_data_dir() / DEFAULT_COLLECTION
+
+
 def ensure_data_structure() -> None:
     """Ensure base data/config directories and channels.yaml exist."""
     data_dir = get_data_dir()
@@ -37,6 +43,9 @@ def ensure_data_structure() -> None:
 
     data_dir.mkdir(parents=True, exist_ok=True)
     config_dir.mkdir(parents=True, exist_ok=True)
+    default_collection_dir = get_default_collection_dir()
+    default_collection_dir.mkdir(parents=True, exist_ok=True)
+    (default_collection_dir / "transcripts").mkdir(parents=True, exist_ok=True)
 
     channels_file = get_channels_file()
     if not channels_file.exists():

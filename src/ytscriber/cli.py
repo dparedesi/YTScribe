@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import logging
 import os
 import sys
@@ -33,7 +34,12 @@ from ytscriber.extractor import ChannelExtractor
 from ytscriber.init import ensure_initialized
 from ytscriber.logging_config import get_logger, setup_logging
 from ytscriber.models import BatchProgress
-from ytscriber.paths import get_channels_file, get_data_dir
+from ytscriber.paths import (
+    DEFAULT_COLLECTION,
+    get_channels_file,
+    get_data_dir,
+    get_default_collection_dir,
+)
 from ytscriber.summarizer import (
     DEFAULT_DELAY as SUMMARIZE_DEFAULT_DELAY,
     DEFAULT_MAX_WORDS as SUMMARIZE_DEFAULT_MAX_WORDS,
@@ -94,6 +100,17 @@ def _resolve_folder_paths(folder: str) -> tuple[Path, Path]:
     data_dir = get_data_dir()
     folder_dir = data_dir / folder
     return folder_dir / "videos.csv", folder_dir / "transcripts"
+
+
+def _ensure_csv_file(csv_path: Path) -> None:
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    if csv_path.exists():
+        return
+
+    fieldnames = ensure_csv_columns([])
+    with open(csv_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
 
 
 def _print_batch_summary(progress: BatchProgress, label: str = "Batch") -> None:
@@ -167,6 +184,62 @@ def handle_download(args: argparse.Namespace) -> int:
         defaults.get("languages", ["en", "en-US", "en-GB"]),
     )
 
+    if args.url:
+        if args.csv:
+            logger.error("Use --csv without a URL for batch downloads.")
+            return 1
+        if args.output_dir and args.output_dir != "outputs":
+            logger.error("Use --output-dir without a URL for batch downloads.")
+            return 1
+
+        folder = args.folder or DEFAULT_COLLECTION
+        if not args.folder:
+            logger.info(f"Using default collection: {DEFAULT_COLLECTION}")
+
+        csv_path, output_dir = _resolve_folder_paths(folder)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        _ensure_csv_file(csv_path)
+
+        try:
+            video_id = extract_video_id(args.url)
+        except InvalidURLError:
+            logger.error(f"Invalid YouTube URL: {args.url}")
+            return 1
+
+        from ytscriber.models import VideoMetadata
+
+        video = VideoMetadata(
+            video_id=video_id,
+            url=f"https://www.youtube.com/watch?v={video_id}",
+        )
+
+        try:
+            added = append_videos_to_csv(str(csv_path), [video])
+            if added > 0:
+                logger.info(f"Added video {video_id} to {csv_path}")
+            else:
+                logger.info(f"Video {video_id} already exists in {csv_path}")
+        except CSVError as e:
+            logger.error(str(e))
+            return 1
+
+        downloader = TranscriptDownloader(
+            languages=languages,
+            delay=0,
+            output_dir=str(output_dir),
+        )
+
+        try:
+            result = downloader.download(
+                video_id=video_id,
+                video_url=args.url,
+                output_file=args.output,
+            )
+            return 0 if result.success else 1
+        except IPBlockedError as e:
+            logger.error(f"IP blocked by YouTube: {e}")
+            return 2
+
     if args.folder:
         if args.csv or (args.output_dir and args.output_dir != "outputs"):
             logger.error("Use --folder without --csv/--output-dir for shorthand paths.")
@@ -199,32 +272,8 @@ def handle_download(args: argparse.Namespace) -> int:
         _print_batch_summary(progress)
         return 0
 
-    if not args.url:
-        logger.error("Provide a video URL, or use --csv/--folder for batch downloads.")
-        return 1
-
-    try:
-        video_id = extract_video_id(args.url)
-    except InvalidURLError:
-        logger.error(f"Invalid YouTube URL: {args.url}")
-        return 1
-
-    downloader = TranscriptDownloader(
-        languages=languages,
-        delay=0,
-        output_dir=str(output_dir),
-    )
-
-    try:
-        result = downloader.download(
-            video_id=video_id,
-            video_url=args.url,
-            output_file=args.output,
-        )
-        return 0 if result.success else 1
-    except IPBlockedError as e:
-        logger.error(f"IP blocked by YouTube: {e}")
-        return 2
+    logger.error("Provide a video URL, or use --csv/--folder for batch downloads.")
+    return 1
 
 
 def handle_extract(args: argparse.Namespace) -> int:
@@ -290,6 +339,10 @@ def handle_extract(args: argparse.Namespace) -> int:
 def handle_add(args: argparse.Namespace) -> int:
     _apply_verbose_logging(args.verbose)
 
+    if not args.folder and not args.csv:
+        args.csv = str(get_default_collection_dir() / "videos.csv")
+        logger.info(f"Using default collection: {DEFAULT_COLLECTION}")
+
     if args.folder:
         if args.csv:
             logger.error("Use --folder without --csv for shorthand paths.")
@@ -315,15 +368,7 @@ def handle_add(args: argparse.Namespace) -> int:
     )
 
     csv_path = Path(args.csv)
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-
-    if not csv_path.exists():
-        fieldnames = ensure_csv_columns([])
-        with open(csv_path, "w", encoding="utf-8", newline="") as f:
-            import csv
-
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
+    _ensure_csv_file(csv_path)
 
     try:
         added = append_videos_to_csv(args.csv, [video])
@@ -520,9 +565,12 @@ def handle_status(args: argparse.Namespace) -> int:
 
     csv_files = find_video_csv_files(data_dir)
     transcript_count = 0
+    folder_counts: list[tuple[str, int]] = []
     for csv_file in csv_files:
         transcripts_dir = csv_file.parent / "transcripts"
-        transcript_count += len(list(transcripts_dir.glob("*.md")))
+        count = len(list(transcripts_dir.glob("*.md"))) if transcripts_dir.exists() else 0
+        transcript_count += count
+        folder_counts.append((csv_file.parent.name, count))
 
     print("=" * 60)
     print("YTScriber Status")
@@ -532,6 +580,12 @@ def handle_status(args: argparse.Namespace) -> int:
     print(f"Collections configured: {collections_count}")
     print(f"Folders with videos.csv: {len(csv_files)}")
     print(f"Transcripts found: {transcript_count}")
+    if folder_counts:
+        print("Available folders:")
+        for folder_name, count in folder_counts:
+            print(f"  - {folder_name} ({count} transcripts)")
+    else:
+        print("Available folders: none")
     print("=" * 60)
     return 0
 
@@ -542,6 +596,10 @@ def build_parser() -> argparse.ArgumentParser:
         description="Download and manage YouTube transcripts",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
+            "Quick start:\n"
+            "  ytscriber download <url>     Download a single video transcript\n"
+            "  ytscriber status             Show available folders\n"
+            "\n"
             "Environment variables:\n"
             "  OPENROUTER_API_KEY  Required for the summarize command\n"
         ),
@@ -556,9 +614,14 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
+            "  # Single video (saves to ~/Documents/YTScriber/ad-hoc-downloads/)\n"
             "  ytscriber download https://youtube.com/watch?v=VIDEO_ID\n"
+            "\n"
+            "  # Single video to specific folder\n"
+            "  ytscriber download https://youtube.com/watch?v=VIDEO_ID --folder my-collection\n"
+            "\n"
+            "  # Batch download from folder\n"
             "  ytscriber download --folder my-channel\n"
-            "  ytscriber download --csv ~/videos.csv --output-dir ~/transcripts\n"
             "\n"
             "Rate limiting:\n"
             "  YouTube may block IPs making too many requests.\n"
