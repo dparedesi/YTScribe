@@ -2,6 +2,18 @@
 
 All notable changes to YTScriber will be documented in this file.
 
+## [1.4.0] - 2026-05-10
+
+### Added
+- **Playlist support in `extract`**: Pass any playlist URL (`/playlist?list=...` or `watch?v=...&list=...`) to extract every video in the playlist. Channel URLs continue to work as before.
+- New helpers `is_playlist_url` and `normalize_playlist_url` in `utils`.
+
+### Changed
+- `extract --count` default raised from 10 to 100 so playlists and small/medium channels pull everything by default.
+
+### Notes
+- `--register-channel` is skipped for playlist URLs (they are not tracked in `channels.yaml`); re-run `extract` to refresh a playlist folder.
+
 ## [1.2.2] - 2025-01-11
 
 ### Fixed

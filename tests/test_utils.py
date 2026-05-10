@@ -9,8 +9,10 @@ from ytscriber.utils import (
     escape_yaml_string,
     extract_video_id,
     format_duration,
+    is_playlist_url,
     is_valid_video_id,
     normalize_channel_url,
+    normalize_playlist_url,
     sanitize_filename,
     truncate_text,
 )
@@ -77,6 +79,43 @@ class TestNormalizeChannelUrl:
         """Test URL that's already normalized."""
         url = "https://www.youtube.com/@AWSEventsChannel"
         assert normalize_channel_url(url) == "https://www.youtube.com/@AWSEventsChannel"
+
+
+class TestIsPlaylistUrl:
+    """Tests for is_playlist_url function."""
+
+    def test_playlist_url(self):
+        url = "https://www.youtube.com/playlist?list=PLmWCw1CzcFim2obQ-w3ohbULOfwp5lApR"
+        assert is_playlist_url(url) is True
+
+    def test_watch_url_with_list(self):
+        url = "https://www.youtube.com/watch?v=GMIWm5y90xA&list=PLmWCw1CzcFim2obQ-w3ohbULOfwp5lApR"
+        assert is_playlist_url(url) is True
+
+    def test_plain_video_url(self):
+        assert is_playlist_url("https://www.youtube.com/watch?v=dQw4w9WgXcQ") is False
+
+    def test_channel_url(self):
+        assert is_playlist_url("https://www.youtube.com/@OpenAI/videos") is False
+
+    def test_non_youtube_url(self):
+        assert is_playlist_url("https://example.com/?list=foo") is False
+
+
+class TestNormalizePlaylistUrl:
+    """Tests for normalize_playlist_url function."""
+
+    def test_strips_video_id(self):
+        url = "https://www.youtube.com/watch?v=GMIWm5y90xA&list=PLabc"
+        assert normalize_playlist_url(url) == "https://www.youtube.com/playlist?list=PLabc"
+
+    def test_already_canonical(self):
+        url = "https://www.youtube.com/playlist?list=PLabc"
+        assert normalize_playlist_url(url) == "https://www.youtube.com/playlist?list=PLabc"
+
+    def test_raises_without_list(self):
+        with pytest.raises(InvalidURLError):
+            normalize_playlist_url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
 
 class TestIsValidVideoId:

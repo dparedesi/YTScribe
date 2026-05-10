@@ -7,7 +7,12 @@ from typing import Optional
 from ytscriber.exceptions import ChannelExtractionError
 from ytscriber.logging_config import get_logger
 from ytscriber.models import VideoMetadata
-from ytscriber.utils import ensure_videos_endpoint, normalize_channel_url
+from ytscriber.utils import (
+    ensure_videos_endpoint,
+    is_playlist_url,
+    normalize_channel_url,
+    normalize_playlist_url,
+)
 
 logger = get_logger("extractor")
 
@@ -57,10 +62,10 @@ class ChannelExtractor:
         max_videos: Optional[int] = None,
     ) -> list[VideoMetadata]:
         """
-        Extract video metadata from a YouTube channel.
+        Extract video metadata from a YouTube channel or playlist.
 
         Args:
-            channel_url: YouTube channel URL
+            channel_url: YouTube channel or playlist URL
             max_videos: Maximum number of videos to extract (None for all)
 
         Returns:
@@ -69,14 +74,16 @@ class ChannelExtractor:
         Raises:
             ChannelExtractionError: If extraction fails
         """
-        logger.info(f"Extracting videos from: {channel_url}")
+        is_playlist = is_playlist_url(channel_url)
+        kind = "playlist" if is_playlist else "channel"
+        logger.info(f"Extracting videos from {kind}: {channel_url}")
 
         if YT_DLP_AVAILABLE:
             videos = self._extract_with_ytdlp(channel_url, max_videos)
             if videos:
                 return videos
 
-        if PYTUBE_AVAILABLE:
+        if PYTUBE_AVAILABLE and not is_playlist:
             videos = self._extract_with_pytube(channel_url, max_videos)
             if videos:
                 return videos
@@ -89,7 +96,10 @@ class ChannelExtractor:
         max_videos: Optional[int],
     ) -> list[VideoMetadata]:
         """Extract videos using yt-dlp."""
-        url = ensure_videos_endpoint(channel_url)
+        if is_playlist_url(channel_url):
+            url = normalize_playlist_url(channel_url)
+        else:
+            url = ensure_videos_endpoint(channel_url)
         videos: list[VideoMetadata] = []
 
         ydl_opts = {

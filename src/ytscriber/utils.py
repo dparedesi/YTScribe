@@ -78,6 +78,48 @@ def ensure_videos_endpoint(url: str) -> str:
     return f"{normalized}/videos"
 
 
+def is_playlist_url(url: str) -> bool:
+    """
+    Check whether a URL refers to a YouTube playlist.
+
+    Detects both `/playlist?list=...` URLs and `watch?v=...&list=...` URLs.
+
+    Args:
+        url: URL to inspect
+
+    Returns:
+        True if the URL contains a playlist ID
+    """
+    parsed = urlparse(url)
+    if parsed.hostname not in ("www.youtube.com", "youtube.com", "m.youtube.com"):
+        return False
+    list_id = parse_qs(parsed.query).get("list", [None])[0]
+    return bool(list_id)
+
+
+def normalize_playlist_url(url: str) -> str:
+    """
+    Normalize a YouTube playlist URL to the canonical /playlist?list=... form.
+
+    Strips video IDs and other params so yt-dlp fetches the full playlist
+    rather than a single video within it.
+
+    Args:
+        url: YouTube playlist URL (may be a watch?v=...&list=... URL)
+
+    Returns:
+        Canonical playlist URL
+
+    Raises:
+        InvalidURLError: If no playlist ID is found
+    """
+    parsed = urlparse(url)
+    list_id = parse_qs(parsed.query).get("list", [None])[0]
+    if not list_id:
+        raise InvalidURLError(url)
+    return f"https://www.youtube.com/playlist?list={list_id}"
+
+
 def sanitize_filename(filename: str, max_length: int = 255) -> str:
     """
     Sanitize a string to be used as a filename.

@@ -49,7 +49,7 @@ from ytscriber.summarizer import (
     process_folder,
 )
 from ytscriber.sync import sync_all_channels
-from ytscriber.utils import ensure_videos_endpoint, extract_video_id
+from ytscriber.utils import ensure_videos_endpoint, extract_video_id, is_playlist_url
 
 logger = get_logger("cli")
 
@@ -279,16 +279,17 @@ def handle_download(args: argparse.Namespace) -> int:
 def handle_extract(args: argparse.Namespace) -> int:
     _apply_verbose_logging(args.verbose)
 
-    try:
-        extract_video_id(args.channel_url)
-    except InvalidURLError:
-        pass
-    else:
-        logger.error("Error: This looks like a video URL, not a channel URL.")
-        logger.error(
-            "To add a single video, use: ytscriber add <url> --folder <name>"
-        )
-        return 1
+    if not is_playlist_url(args.channel_url):
+        try:
+            extract_video_id(args.channel_url)
+        except InvalidURLError:
+            pass
+        else:
+            logger.error("Error: This looks like a video URL, not a channel URL.")
+            logger.error(
+                "To add a single video, use: ytscriber add <url> --folder <name>"
+            )
+            return 1
 
     if args.folder:
         if args.append_csv:
@@ -317,7 +318,13 @@ def handle_extract(args: argparse.Namespace) -> int:
             return 1
 
         if args.register_channel:
-            _register_channel(Path(args.append_csv), args.channel_url, args.count)
+            if is_playlist_url(args.channel_url):
+                logger.info(
+                    "Skipping channel registration: playlist URLs are not "
+                    "tracked in channels.yaml (re-run extract to refresh)."
+                )
+            else:
+                _register_channel(Path(args.append_csv), args.channel_url, args.count)
     elif args.output:
         try:
             output_path = Path(args.output)
@@ -676,20 +683,24 @@ def build_parser() -> argparse.ArgumentParser:
 
     extract_parser = subparsers.add_parser(
         "extract",
-        help="Extract videos from a channel",
+        help="Extract videos from a channel or playlist",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
             "  ytscriber extract https://www.youtube.com/@OpenAI/videos --count 20 --folder OpenAI\n"
+            "  ytscriber extract https://www.youtube.com/playlist?list=PLxxx --folder my-playlist\n"
             "  ytscriber extract https://www.youtube.com/@OpenAI/videos --count 20 --append-csv ~/videos.csv\n"
         ),
     )
-    extract_parser.add_argument("channel_url", help="YouTube channel URL")
+    extract_parser.add_argument(
+        "channel_url",
+        help="YouTube channel URL or playlist URL (watch?v=...&list=... also accepted)",
+    )
     extract_parser.add_argument(
         "--count",
         "-n",
         type=int,
-        default=10,
+        default=100,
         metavar="N",
         help="Number of videos to extract (default: %(default)s)",
     )
